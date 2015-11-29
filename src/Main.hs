@@ -22,14 +22,29 @@ main = do
     -- Test cases for criterion
     defaultMain [
         bgroup "Queue" [
-            bench "Transient"  $ nf testQueue Transient.create  ,
-            bench "Persistent" $ nf testQueue Persistent.create ]
+            bgroup "NoPersist" [
+                bench "Transient"  $ nf testNoPersist   Transient.create,
+                bench "Persistent" $ nf testNoPersist   Persistent.create ]
+            ,
+            bgroup "WithPersist" [
+                bench "Transient"  $ nf testWithPersist Transient.create,
+                bench "Persistent" $ nf testWithPersist Persistent.create ]
+            ]
         ]
 
 
-testQueue :: (IQueue q) => ([Int] -> q Int) -> [Int]
-testQueue create =
-    let q1 = push 12 $ push 11 $ pop $ create [0..10 :: Int]
-        q2 = foldl (flip push) q1 [13 .. 100 :: Int]
-    in consume (:) [] q2
+testNoPersist :: (IQueue q) => ([Int] -> q Int) -> Int
+testNoPersist create =
+    let q1 = create [0..10 :: Int]
+        q2 = foldl (flip push) q1 [100 .. 1000]
+        q3 = iterate (pop . push 1) q2 !! 1000
+    in top q3
+
+
+testWithPersist :: (IQueue q) => ([Int] -> q Int) -> Int
+testWithPersist create =
+    let q1 = create [1 :: Int]
+        q2 = foldl (flip push) q1 [100 .. 1000]
+        qs = replicate 100000 (pop q2)
+    in sum $ fmap top qs
 
