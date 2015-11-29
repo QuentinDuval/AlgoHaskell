@@ -3,19 +3,36 @@ version: 0.0.1
 cabal-version: 1.12
 build-type: Simple
 license: AllRightsReserved
+description:
 
-executable AlgoHaskell
-    main-is: Main.hs
+
+library
+    exposed-modules:
+        Queue.Class
+        Queue.Persistent
+        Queue.Transient
+        Queue.Utils
     build-depends:
+        HUnit -any,
+        QuickCheck -any,
         base -any,
         criterion -any
     default-language: Haskell2010
     hs-source-dirs: src
     other-modules:
-        Queue.Utils
-        Queue.Transient
-        Queue.Persistent
-        Queue.Class
+    ghc-options: -ferror-spans -O2
+
+executable exe-AlgoHaskell
+    main-is: Main.hs
+    build-depends:
+        AlgoHaskell -any,
+        base -any,
+        criterion -any
+    default-language: Haskell2010
+    hs-source-dirs: src test
+    other-modules:
+        Benchs
+        Bench.Queue
     ghc-options: -ferror-spans -O2
 
 test-suite test-AlgoHaskell
@@ -32,13 +49,3 @@ test-suite test-AlgoHaskell
         TestSuite
         Test.Queue
     ghc-options: -ferror-spans
-
-benchmark bench-AlgoHaskell
-    type: exitcode-stdio-1.0
-    main-is: Benchs.hs
-    build-depends:
-        base -any,
-        criterion -any
-    default-language: Haskell2010
-    hs-source-dirs: src test
-    ghc-options: -ferror-spans -O2

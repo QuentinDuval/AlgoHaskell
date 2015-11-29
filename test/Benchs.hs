@@ -1,11 +1,10 @@
-module Main (
-    main
+module Benchs (
+    runAllBenchs
 ) where
 
 
 import Bench.Queue
 
-
-main :: IO ()
-main = do
+runAllBenchs :: IO ()
+runAllBenchs = do
     runQueueBench

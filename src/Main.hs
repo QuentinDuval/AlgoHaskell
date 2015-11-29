@@ -2,8 +2,11 @@ module Main (
     main
 ) where
 
+import Benchs
+
 
 main :: IO ()
 main = do
-    putStrLn "Nothing to do yet"
+    runAllBenchs
+    return ()
 
