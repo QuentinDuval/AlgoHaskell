@@ -3,8 +3,8 @@ module TestSuite (
 ) where
 
 import Test.HUnit
-
+import Test.Queue
 
 runTestSuite :: IO Counts
-runTestSuite = runTestTT $ TestList []
+runTestSuite = runTestTT $ TestList [ runQueueTests ]
 
