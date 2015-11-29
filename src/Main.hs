@@ -23,28 +23,32 @@ main = do
     defaultMain [
         bgroup "Queue" [
             bgroup "NoPersist" [
-                bench "Transient"  $ nf testNoPersist   Transient.create,
-                bench "Persistent" $ nf testNoPersist   Persistent.create ]
+                bench "Transient"  $ nf (testNoPersist 1000)  Transient.create  ,
+                bench "Persistent" $ nf (testNoPersist 1000)  Persistent.create ,
+                bench "Transient"  $ nf (testNoPersist 10000) Transient.create  ,
+                bench "Persistent" $ nf (testNoPersist 10000) Persistent.create ]
             ,
             bgroup "WithPersist" [
-                bench "Transient"  $ nf testWithPersist Transient.create,
-                bench "Persistent" $ nf testWithPersist Persistent.create ]
+                bench "Transient"  $ nf (testWithPersist 1000)  Transient.create  ,
+                bench "Persistent" $ nf (testWithPersist 1000)  Persistent.create ,
+                bench "Transient"  $ nf (testWithPersist 10000) Transient.create  ,
+                bench "Persistent" $ nf (testWithPersist 10000) Persistent.create ]
             ]
         ]
 
 
-testNoPersist :: (IQueue q) => ([Int] -> q Int) -> Int
-testNoPersist create =
-    let q1 = create [0..10 :: Int]
-        q2 = foldl (flip push) q1 [100 .. 1000]
+testNoPersist :: (IQueue q) => Int -> ([Int] -> q Int) -> Int
+testNoPersist n create =
+    let q1 = create [0..100 :: Int]
+        q2 = foldl (flip push) q1 [100 .. 100 + n]
         q3 = iterate (pop . push 1) q2 !! 1000
     in top q3
 
 
-testWithPersist :: (IQueue q) => ([Int] -> q Int) -> Int
-testWithPersist create =
+testWithPersist :: (IQueue q) => Int -> ([Int] -> q Int) -> Int
+testWithPersist n create =
     let q1 = create [1 :: Int]
-        q2 = foldl (flip push) q1 [100 .. 1000]
-        qs = replicate 100000 (pop q2)
+        q2 = foldl (flip push) q1 [1 .. n]
+        qs = replicate 1000 (pop q2)
     in sum $ fmap top qs
 
