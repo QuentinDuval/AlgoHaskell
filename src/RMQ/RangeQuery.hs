@@ -35,13 +35,17 @@ rangeSize rmq = next rmq - curr rmq
 rangeFromList :: (Monoid a) => [a] -> RMQ a
 rangeFromList vals =
     let leaves = zipWith newLeaf [0..] vals
-    in balancedFold mergeTrees leaves
+    in balancedFold mergeTree leaves
 
 --pushBack :: (Monoid a) => RMQ a -> a -> RMQ a -- May grow the array from the top
 --pushBack = undefined
 
 updateVal :: (Monoid a) => RMQ a -> Int -> a -> RMQ a
-updateVal rmq i v = undefined
+updateVal Leaf i v  = error "Index not found in RMQ"
+updateVal n@Node{..} i v
+    | isLeafVal n   = n { nodeVal = v }
+    | i < mid       = mergeTree (updateVal lhs i v) rhs
+    | otherwise     = mergeTree lhs (updateVal rhs i v)
 
 elementAt :: (Monoid a) => RMQ a -> Int -> a    -- TODO: could be made without Monoid by just following paths
 elementAt rmq i = rangeQuery rmq (i, i+1)
@@ -60,9 +64,14 @@ rangeQuery Node{..} (b, e)
 newLeaf :: Int -> a -> RMQ a
 newLeaf i v = Node i i (i+1) v Leaf Leaf
 
-mergeTrees :: (Monoid a) => RMQ a -> RMQ a -> RMQ a
-mergeTrees lhs rhs
-    = Node {
+isLeafVal :: RMQ a -> Bool
+isLeafVal Leaf      = False
+isLeafVal Node{..}  = curr + 1 == next
+
+mergeTree :: (Monoid a) => RMQ a -> RMQ a -> RMQ a
+mergeTree lhs Leaf = lhs
+mergeTree Leaf rhs = rhs
+mergeTree lhs rhs = Node {
         curr = curr lhs,
         mid  = curr rhs,
         next = next rhs,
