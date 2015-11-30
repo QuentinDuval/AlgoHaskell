@@ -37,17 +37,14 @@ rangeFromList vals =
     let leaves = zipWith newLeaf [0..] vals
     in balancedFold mergeTrees leaves
 
---pushFont :: (Monoid a) => RMQ a -> a -> RMQ a
---pushFont = undefined
-
---pushBack :: (Monoid a) => RMQ a -> a -> RMQ a
+--pushBack :: (Monoid a) => RMQ a -> a -> RMQ a -- May grow the array from the top
 --pushBack = undefined
 
---updateVal :: (Monoid a) => RMQ a -> Int -> a -> RMQ a
---updateVal rmq i v = undefined
+updateVal :: (Monoid a) => RMQ a -> Int -> a -> RMQ a
+updateVal rmq i v = undefined
 
---elementAt :: RMQ a -> Int -> a
---elementAt rms i = undefined
+elementAt :: (Monoid a) => RMQ a -> Int -> a    -- TODO: could be made without Monoid by just following paths
+elementAt rmq i = rangeQuery rmq (i, i+1)
 
 rangeQuery :: (Monoid a) => RMQ a -> (Int, Int) -> a
 rangeQuery Leaf _ = mempty
