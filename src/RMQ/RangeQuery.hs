@@ -26,11 +26,11 @@ rangeFromList vals =
     let leaves = fmap newLeaf vals
     in balancedFold mergeTree leaves
 
---pushBack :: (Monoid a) => RMQ a -> a -> RMQ a
---pushBack Leaf a = undefined -- newLeaf i a
---pushBack n@Node{..} a
---    | rangeSize lhs > rangeSize rhs = n { rhs = pushBack rhs a }
---    | otherwise = undefined -- insert new node
+pushBack :: (Monoid a) => RMQ a -> a -> RMQ a
+pushBack Leaf a = newLeaf a
+pushBack n@Node{..} a
+    | rangeSize lhs > rangeSize rhs = mergeTree lhs (pushBack rhs a)
+    | otherwise                     = mergeTree n   (newLeaf a)
 
 updateVal :: (Monoid a) => RMQ a -> Int -> a -> RMQ a
 updateVal Leaf i v  = error "Index not found in RMQ"
@@ -67,8 +67,8 @@ mergeTree Leaf rhs = rhs
 mergeTree lhs rhs = Node {
         treeSize = treeSize lhs + treeSize rhs,
         nodeVal  = nodeVal lhs <> nodeVal rhs,
-        lhs = lhs,
-        rhs = rhs
+        lhs      = lhs,
+        rhs      = rhs
     }
 
 balancedFold :: (RMQ a -> RMQ a -> RMQ a) -> [RMQ a] -> RMQ a
