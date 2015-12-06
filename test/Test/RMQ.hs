@@ -6,6 +6,7 @@ module Test.RMQ (
 
 import RMQ.RangeQuery
 import Test.HUnit
+import Utils.Monoids
 
 
 -- | All tests

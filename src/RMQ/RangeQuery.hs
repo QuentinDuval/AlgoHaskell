@@ -5,21 +5,9 @@ module RMQ.RangeQuery where
 import Data.Monoid
 
 
--- First attemps of implementation of RMQ
+-- First attempt of implementation of RMQ
 -- General case accept any kind of function a -> a -> b
 -- Should ask for a typeclass for consistency (or function should change?)
-
-data Min
-    = Min { intVal :: Int }
-    | UndefMin
-    deriving (Show, Eq, Ord)
-
-instance Monoid Min where
-    mempty             = UndefMin
-    mappend a UndefMin = a
-    mappend UndefMin b = b
-    mappend a b        = Min $ min (intVal a) (intVal b)
-
 
 data RMQ a
     = Leaf

@@ -11,6 +11,7 @@ library
         Queue.Transient
         Queue.Utils
         RMQ.RangeQuery
+        Utils.Monoids
     build-depends:
         HUnit -any,
         QuickCheck -any,
