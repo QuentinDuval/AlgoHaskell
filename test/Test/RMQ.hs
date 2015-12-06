@@ -12,11 +12,11 @@ import Utils.Monoids
 -- | All tests
 
 runRangeQueryTests :: Test
-runRangeQueryTests = TestList [ testQuery ]
+runRangeQueryTests = TestList [ balancedTestQuery, unbalancedTestQuery ]
 
 
-testQuery :: Test
-testQuery =
+balancedTestQuery :: Test
+balancedTestQuery =
     let q1 = rangeFromList (fmap Min [1 .. 8])
         q2 = updateVal (updateVal q1 0 (Min 8)) 2 (Min 8)
     in TestCase $ do
@@ -32,4 +32,13 @@ testQuery =
         assertEqual "Update min 2"  (Min 4)  $ rangeQuery q2 (2,5)
 
 
+unbalancedTestQuery :: Test
+unbalancedTestQuery =
+    let q1 = rangeFromList (fmap Min [2 .. 8])
+        q2 = rangeFromList (fmap Min [3 .. 8])
+        q3 = rangeFromList (fmap Min [4 .. 8])
+    in TestCase $ do
+        assertEqual "7 elements"    (Min 2)  $ rangeQuery q1 (0,10)
+        assertEqual "6 elements"    (Min 3)  $ rangeQuery q2 (0,10)
+        assertEqual "5 elements"    (Min 4)  $ rangeQuery q3 (0,10)
 

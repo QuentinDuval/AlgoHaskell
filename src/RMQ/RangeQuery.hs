@@ -71,7 +71,7 @@ mergeTree lhs rhs = Node {
 balancedFold :: (RMQ a -> RMQ a -> RMQ a) -> [RMQ a] -> RMQ a
 balancedFold merge rmqs = go [head rmqs] (tail rmqs)
     where
-        go acc []     = foldr1 merge acc
+        go acc []     = foldr1 (flip merge) acc
         go []  (r:rs) = go [r] rs
         go acc (r:rs)
             | rangeSize (head acc) > rangeSize r = go (r : acc) rs
