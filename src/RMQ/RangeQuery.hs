@@ -64,8 +64,8 @@ rangeQuery Node{..} (b, e)
      where mid = rangeSize lhs
 
 appendRange :: (Monoid a) => RMQ a -> RMQ a -> RMQ a
-appendRange lhs rhs = balancedFold mergeTree trees -- TODO: Could use min tree size of lhs to limit rhs decomposition
-    where trees = unfoldToCompleteTrees lhs ++ getLeaves rhs
+appendRange lhs rhs = balancedFold mergeTree trees              -- TODO: Could use min lhs tree size to limit rhs decomposition
+    where trees = unfoldToCompleteTrees lhs ++ getLeaves rhs    -- TODO: In which case, getleaves should take limit size
 
 
 -- | Public instances
@@ -93,10 +93,13 @@ mergeTree lhs rhs = Node {
     }
 
 getLeaves :: RMQ a -> [RMQ a]
-getLeaves Leaf = []
-getLeaves n@Node {..}
-    | 1 == treeSize = [n]
-    | otherwise     = getLeaves lhs ++ getLeaves rhs -- TODO: improve implementation
+getLeaves = go []
+    where
+        go acc Leaf = acc
+        go acc n@Node {..}
+            | 1 == treeSize = n : acc
+            | otherwise     = go (go acc rhs) lhs
+
 
 {-
 Implements a binary counter to match and merge trees of same size
