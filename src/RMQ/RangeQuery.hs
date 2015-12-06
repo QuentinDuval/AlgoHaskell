@@ -82,6 +82,12 @@ mergeTree lhs rhs = Node {
         rhs      = rhs
     }
 
+{-
+Implements a binary counter to match and merge trees of same size
+It implicitely assumes that:
+* rmqs in input are ordered in decreasing size
+* rmqs in input are complete binary trees
+-}
 balancedFold :: (RMQ a -> RMQ a -> RMQ a) -> [RMQ a] -> RMQ a
 balancedFold merge rmqs = go [head rmqs] (tail rmqs)
     where
