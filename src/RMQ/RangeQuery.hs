@@ -1,13 +1,19 @@
 {-# LANGUAGE RecordWildCards #-}
-module RMQ.RangeQuery where
+module RMQ.RangeQuery (
+    RMQ,
+    rangeSize,
+    rangeFromList,
+    pushBack,
+    updateVal,
+    elementAt,
+    rangeQuery
+) where
 
 
 import Data.Monoid
 
 
--- First attempt of implementation of RMQ
--- General case accept any kind of function a -> a -> b
--- Should ask for a typeclass for consistency (or function should change?)
+-- | Abstract data type for range queries
 
 data RMQ a
     = Leaf
@@ -17,14 +23,15 @@ data RMQ a
         lhs, rhs        :: RMQ a }
     deriving (Show, Eq, Ord)
 
+
+-- | Public functions
+
 rangeSize :: RMQ a -> Int
 rangeSize Leaf = 0
 rangeSize rmq  = treeSize rmq
 
 rangeFromList :: (Monoid a) => [a] -> RMQ a
-rangeFromList vals =
-    let leaves = fmap newLeaf vals
-    in balancedFold mergeTree leaves
+rangeFromList = balancedFold mergeTree . fmap newLeaf
 
 pushBack :: (Monoid a) => RMQ a -> a -> RMQ a
 pushBack Leaf a = newLeaf a
@@ -35,9 +42,9 @@ pushBack n@Node{..} a
 updateVal :: (Monoid a) => RMQ a -> Int -> a -> RMQ a
 updateVal Leaf i v  = error "Index not found in RMQ"
 updateVal n@Node{..} i v
-    | isLeafVal n   = n { nodeVal = v }
-    | i < mid       = mergeTree (updateVal lhs i v) rhs
-    | otherwise     = mergeTree lhs (updateVal rhs (i - mid) v)
+    | 1 == treeSize && 0 == i   = n { nodeVal = v }
+    | i < mid                   = mergeTree (updateVal lhs i v) rhs
+    | otherwise                 = mergeTree lhs (updateVal rhs (i - mid) v)
     where mid = rangeSize lhs
 
 elementAt :: (Monoid a) => RMQ a -> Int -> a    -- TODO: could be made without Monoid by just following paths
@@ -53,13 +60,17 @@ rangeQuery Node{..} (b, e)
      where mid = rangeSize lhs
 
 
+-- | Public instances
+
+--instance (Monoid a) => Monoid (RMQ a) where
+--    mempty  = Leaf
+--    mappend = undefined -- TODO: not that easy to define (complete left tree first?)
+
+
 -- | Private
 
 newLeaf :: a -> RMQ a
 newLeaf v = Node 1 v Leaf Leaf
-
-isLeafVal :: RMQ a -> Bool
-isLeafVal rmq = 1 == treeSize rmq
 
 mergeTree :: (Monoid a) => RMQ a -> RMQ a -> RMQ a
 mergeTree lhs Leaf = lhs
