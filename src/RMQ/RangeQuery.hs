@@ -23,7 +23,7 @@ rangeSize rmq  = treeSize rmq
 
 rangeFromList :: (Monoid a) => [a] -> RMQ a
 rangeFromList vals =
-    let leaves = zipWith newLeaf [0..] vals
+    let leaves = fmap newLeaf vals
     in balancedFold mergeTree leaves
 
 --pushBack :: (Monoid a) => RMQ a -> a -> RMQ a
@@ -55,8 +55,8 @@ rangeQuery Node{..} (b, e)
 
 -- | Private
 
-newLeaf :: Int -> a -> RMQ a
-newLeaf i v = Node 1 v Leaf Leaf
+newLeaf :: a -> RMQ a
+newLeaf v = Node 1 v Leaf Leaf
 
 isLeafVal :: RMQ a -> Bool
 isLeafVal rmq = 1 == treeSize rmq
