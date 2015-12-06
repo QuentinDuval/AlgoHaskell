@@ -13,14 +13,15 @@ import Utils.Monoids
 
 runRangeQueryTests :: Test
 runRangeQueryTests = TestList
-    [ balancedTestQuery, unbalancedTestQuery, updateTestQuery, pushBackTest ]
+    [ balancedTestQuery, unbalancedTestQuery, updateTestQuery
+    , pushBackTest, appendRangeTest ]
 
 
 -- | Test cases
 
 balancedTestQuery :: Test
 balancedTestQuery =
-    let q = rangeFromList (fmap Min [1 .. 8])
+    let q = rangeFromList [Min 1 .. Min 8]
     in TestCase $ do
         assertEqual "Empty range"   UndefMin $ rangeQuery q (0,0)
         assertEqual "Element at"    (Min 1)  $ elementAt  q 0
@@ -34,7 +35,7 @@ balancedTestQuery =
 
 updateTestQuery :: Test
 updateTestQuery =
-    let q1 = rangeFromList (fmap Min [1 .. 8])
+    let q1 = rangeFromList [Min 1 .. Min 8]
         q2 = updateVal (updateVal q1 0 (Min 8)) 2 (Min 8)
     in TestCase $ do
         assertEqual "Update min 1"  (Min 2)  $ rangeQuery q2 (0,8)
@@ -43,9 +44,9 @@ updateTestQuery =
 
 unbalancedTestQuery :: Test
 unbalancedTestQuery =
-    let q1 = rangeFromList (fmap Min [2 .. 8])
-        q2 = rangeFromList (fmap Min [3 .. 8])
-        q3 = rangeFromList (fmap Min [4 .. 8])
+    let q1 = rangeFromList [Min 2 .. Min 8]
+        q2 = rangeFromList [Min 3 .. Min 8]
+        q3 = rangeFromList [Min 4 .. Min 8]
     in TestCase $ do
         assertEqual "7 elements"    (Min 2)  $ rangeQuery q1 (0,8)
         assertEqual "6 elements"    (Min 3)  $ rangeQuery q2 (0,8)
@@ -54,11 +55,22 @@ unbalancedTestQuery =
 
 pushBackTest :: Test
 pushBackTest =
-    let q1 = rangeFromList (fmap Min [3 .. 8])
+    let q1 = rangeFromList [Min 3 .. Min 8]
         q2 = pushBack (pushBack q1 (Min 2)) (Min 1)
     in TestCase $ do
         assertEqual "Before add"    (Min 3)  $ rangeQuery q1 (0,8)
         assertEqual "After add 1"   (Min 1)  $ rangeQuery q2 (0,8)
         assertEqual "After add 2"   (Min 2)  $ rangeQuery q2 (0,7)
 
+
+appendRangeTest :: Test
+appendRangeTest =
+    let q1 = rangeFromList [Min 1 .. Min 5]
+        q2 = rangeFromList [Min 6 .. Min 8]
+        q3 = appendRange q1 q2
+    in TestCase $ do
+        assertEqual "Append RMQs"   (Min 1)  $ rangeQuery q3 (0,8)
+        assertEqual "Left part"     (Min 1)  $ rangeQuery q3 (0,5)
+        assertEqual "Right part"    (Min 6)  $ rangeQuery q3 (5,8)
+        assertEqual "Repr"  [Min 1 .. Min 8] $ rangeToList q3
 

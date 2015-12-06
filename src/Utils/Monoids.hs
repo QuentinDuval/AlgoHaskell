@@ -15,3 +15,7 @@ instance Monoid Min where
     mappend UndefMin b = b
     mappend a b        = Min $ min (intVal a) (intVal b)
 
+instance Enum Min where
+    toEnum      = Min
+    fromEnum    = intVal
+

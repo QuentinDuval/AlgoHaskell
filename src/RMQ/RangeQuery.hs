@@ -3,12 +3,13 @@ module RMQ.RangeQuery (
     RMQ,
     rangeSize,
     rangeFromList,
+    rangeToList,
     pushBack,
     updateVal,
     elementAt,
-    rangeQuery
+    rangeQuery,
+    appendRange,
 ) where
-
 
 import Data.Monoid
 
@@ -32,6 +33,9 @@ rangeSize rmq  = treeSize rmq
 
 rangeFromList :: (Monoid a) => [a] -> RMQ a
 rangeFromList = balancedFold mergeTree . fmap newLeaf
+
+rangeToList :: RMQ a -> [a]
+rangeToList = fmap nodeVal . getLeaves
 
 pushBack :: (Monoid a) => RMQ a -> a -> RMQ a
 pushBack Leaf a = newLeaf a
@@ -59,12 +63,18 @@ rangeQuery Node{..} (b, e)
      | otherwise                = rangeQuery lhs (b, e) <> rangeQuery rhs (b - mid, e - mid)
      where mid = rangeSize lhs
 
+appendRange :: (Monoid a) => RMQ a -> RMQ a -> RMQ a
+appendRange lhs rhs = balancedFold mergeTree trees -- TODO: Could use min tree size of lhs to limit rhs decomposition
+    where trees = unfoldToCompleteTrees lhs ++ getLeaves rhs
+
 
 -- | Public instances
 
---instance (Monoid a) => Monoid (RMQ a) where
---    mempty  = Leaf
---    mappend = undefined -- TODO: not that easy to define (complete left tree first?)
+instance (Monoid a) => Monoid (RMQ a) where
+    mempty           = Leaf
+    mappend Leaf rhs = rhs
+    mappend lhs Leaf = lhs
+    mappend lhs rhs  = appendRange lhs rhs
 
 
 -- | Private
@@ -82,6 +92,12 @@ mergeTree lhs rhs = Node {
         rhs      = rhs
     }
 
+getLeaves :: RMQ a -> [RMQ a]
+getLeaves Leaf = []
+getLeaves n@Node {..}
+    | 1 == treeSize = [n]
+    | otherwise     = getLeaves lhs ++ getLeaves rhs -- TODO: improve implementation
+
 {-
 Implements a binary counter to match and merge trees of same size
 It implicitely assumes that:
@@ -97,6 +113,16 @@ balancedFold merge rmqs = go [head rmqs] (tail rmqs)
             | rangeSize (head acc) > rangeSize r = go (r : acc) rs
             | otherwise                          = go (tail acc) (merge (head acc) r : rs)
 
+{-
+Decompose the RMQ into several RMQ represented by complete binary trees:
+* Unique decomposition in RMQs with power of 2 sizes
+* Ordered in decreasing order of RMQ sizes
+-}
+unfoldToCompleteTrees :: RMQ a -> [RMQ a]
+unfoldToCompleteTrees Leaf = []
+unfoldToCompleteTrees n@Node{..}
+    | rangeSize lhs > rangeSize rhs = lhs : unfoldToCompleteTrees rhs
+    | otherwise                     = [n]
 
 
 
