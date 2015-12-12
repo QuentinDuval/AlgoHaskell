@@ -13,7 +13,7 @@ import Data.Monoid
 fastExp :: (Monoid a) => a -> Int -> a
 fastExp = fastExpTailRec
 
-fastExpTailRec :: (Monoid a) => a -> Int -> a -- TODO unwarp the monoid instance, it seems to be slowing things down
+fastExpTailRec :: (Monoid a) => a -> Int -> a
 fastExpTailRec = recur mempty
     where
         recur !acc !val e
