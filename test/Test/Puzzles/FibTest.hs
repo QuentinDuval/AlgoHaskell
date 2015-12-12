@@ -12,6 +12,7 @@ import Test.HUnit
 runFibTests :: Test
 runFibTests = TestList [
         runFibTest "fibIterate" fibIterate,
+        runFibTest "fibImperative" fibImperative,
         runFibTest "fibMatrix" fibMatrix,
         runFibTest "fibMatrixTR" fibMatrixTR
     ]

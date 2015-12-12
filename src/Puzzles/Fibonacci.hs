@@ -1,9 +1,13 @@
 module Puzzles.Fibonacci (
     fibIterate,
+    fibImperative,
     fibMatrix,
     fibMatrixTR,
 ) where
 
+import Control.Monad
+import Control.Monad.ST
+import Data.STRef.Strict
 import Numerics
 
 
@@ -12,6 +16,19 @@ import Numerics
 fibIterate :: Int -> Integer
 fibIterate n = map fst (iterate next (0,1)) !! n
    where next (a, b) = (b, b + a)
+
+
+-- | Implementation based on the ST monad (linear complexity)
+
+fibImperative :: Int -> Integer
+fibImperative n = runST $ do
+    a <- newSTRef 0
+    b <- newSTRef 1
+    forM_ [1..n] $ \_ -> do
+        curr <- readSTRef a
+        writeSTRef a =<< readSTRef b
+        modifySTRef' b (+ curr)
+    readSTRef a
 
 
 -- | Fast exponentiation implementation (logarithmic complexity)
@@ -27,14 +44,12 @@ instance Monoid FibMatrix where
             (x21 * y11 + x22 * y21)
             (x21 * y12 + x22 * y22)
 
-fibMatrixImpl ::  (FibMatrix -> Int -> FibMatrix) -> Int -> Integer
-fibMatrixImpl fastExpImpl n =
-    let (FibMatrix _ res _ _) = fastExpImpl (FibMatrix 1 1 1 0) n
-    in res
+fibRes :: FibMatrix -> Integer
+fibRes (FibMatrix _ res _ _) = res
 
 fibMatrix :: Int -> Integer
-fibMatrix = fibMatrixImpl fastExpNaiveRec
+fibMatrix = fibRes . fastExpNaiveRec (FibMatrix 1 1 1 0)
 
 fibMatrixTR :: Int -> Integer
-fibMatrixTR = fibMatrixImpl fastExpTailRec
+fibMatrixTR = fibRes . fastExpTailRec (FibMatrix 1 1 1 0)
 
