@@ -3,7 +3,7 @@ module Puzzles.Fibonacci (
     fibMatrix,
 ) where
 
-
+import Numerics
 
 
 -- | Implementation based on the function iterate (linear complexity)
@@ -17,8 +17,9 @@ fibIterate n = map fst (iterate next (0,1)) !! n
 
 data FibMatrix = FibMatrix Integer Integer Integer Integer
 
-instance Num FibMatrix where
-    (FibMatrix x11 x12 x21 x22) * (FibMatrix y11 y12 y21 y22)
+instance Monoid FibMatrix where
+    mempty  = FibMatrix 1 0 1 0
+    mappend (FibMatrix x11 x12 x21 x22) (FibMatrix y11 y12 y21 y22)
         = FibMatrix
             (x11 * y11 + x12 * y21)
             (x11 * y12 + x12 * y22)
@@ -27,7 +28,7 @@ instance Num FibMatrix where
 
 fibMatrix :: Int -> Integer
 fibMatrix n =
-    let (FibMatrix _ res _ _) = FibMatrix 1 1 1 0 ^ n
+    let (FibMatrix _ res _ _) = fastExp (FibMatrix 1 1 1 0) n
     in res
 
 

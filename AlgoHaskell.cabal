@@ -6,6 +6,7 @@ license: AllRightsReserved
 
 library
     exposed-modules:
+        Numerics
         Queue.Class
         Queue.Persistent
         Queue.Transient
