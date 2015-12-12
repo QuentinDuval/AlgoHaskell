@@ -25,7 +25,6 @@ fastExpNaiveRec :: (Monoid a) => a -> Int -> a
 fastExpNaiveRec val e
     | e <= 0    = mempty
     | odd e     = val <> fastExp val (e - 1)
-    | otherwise =
-        let rec = fastExp val (div e 2)
-        in rec <> rec
+    | otherwise = rec <> rec
+        where rec = fastExp val (div e 2)
 
