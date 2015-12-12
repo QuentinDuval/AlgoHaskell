@@ -24,7 +24,7 @@ fastExpTailRec = recur mempty
 fastExpNaiveRec :: (Monoid a) => a -> Int -> a
 fastExpNaiveRec val e
     | e <= 0    = mempty
-    | odd e     = val <> fastExpNaiveRec val (e - 1)
+    | odd e     = val <> res <> res
     | otherwise = res <> res
-        where res = fastExpNaiveRec val (div e 2)
+    where res = fastExpNaiveRec val (div e 2)
 
