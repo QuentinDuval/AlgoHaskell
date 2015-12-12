@@ -2,7 +2,6 @@ module Bench.Queue (
     runQueueBench,
 ) where
 
-
 import Criterion
 import Criterion.Main
 
@@ -11,16 +10,9 @@ import qualified Queue.Persistent as Persistent
 import qualified Queue.Transient as Transient
 import Queue.Utils
 
-import System.IO
-
 
 runQueueBench :: IO ()
-runQueueBench = do
-    -- Settings for better output by criterion
-    hSetBuffering stdout NoBuffering
-    hSetEncoding stdout utf8
-
-    -- Test cases for criterion
+runQueueBench =
     defaultMain [
         bgroup "Queue" [
             bgroup "NoPersist" [

@@ -4,8 +4,16 @@ module Benchs (
 
 
 import Bench.Queue
+import Bench.Puzzles.FibBench
+import System.IO
+
 
 runAllBenchs :: IO ()
 runAllBenchs = do
-    --runQueueBench
-    return ()
+    -- Settings for better output by criterion
+    hSetBuffering stdout NoBuffering
+    hSetEncoding stdout utf8
+
+    -- Run all benches
+    -- runQueueBench
+    runFibBench
