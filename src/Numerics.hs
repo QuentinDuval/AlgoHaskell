@@ -1,14 +1,29 @@
-module Numerics where
+{-# LANGUAGE BangPatterns #-}
+module Numerics (
+    fastExp,
+    fastExpTailRec,
+    fastExpNaiveRec,
+) where
 
 import Data.Monoid
 
 
--- | Fast exponentiation algorithm
+-- | Fast exponentiation algorithms
 
 fastExp :: (Monoid a) => a -> Int -> a
-fastExp val e
-    | e < 1     = mempty
-    | e == 1    = val
+fastExp = fastExpTailRec
+
+fastExpTailRec :: (Monoid a) => a -> Int -> a
+fastExpTailRec = recur mempty
+    where
+        recur !acc !val e
+            | e <= 0    = acc
+            | odd e     = recur (val <> acc) val (e - 1)
+            | otherwise = recur acc (val <> val) (div e 2)
+
+fastExpNaiveRec :: (Monoid a) => a -> Int -> a
+fastExpNaiveRec val e
+    | e <= 0    = mempty
     | odd e     = val <> fastExp val (e - 1)
     | otherwise =
         let rec = fastExp val (div e 2)
