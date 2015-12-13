@@ -1,7 +1,7 @@
-{-# LANGUAGE FunctionalDependencies #-}
-{-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE TypeSynonymInstances #-}
-{-# LANGUAGE MultiParamTypeClasses #-}
+--{-# LANGUAGE FunctionalDependencies #-}
+--{-# LANGUAGE FlexibleInstances #-}
+--{-# LANGUAGE TypeSynonymInstances #-}
+--{-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE ConstraintKinds #-}
 module Graph.DFS where
 
