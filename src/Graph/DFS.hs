@@ -9,6 +9,8 @@ import Graph.Class
 
 -- | Lazy depth first search
 
+-- TODO: using type classes, dispatch the constraints toward different algorithm (ord, or eq)
+
 dfsFrom :: (ImplicitGraph graphT nodeT edgeT, Ord nodeT) => graphT -> nodeT -> [nodeT]
 dfsFrom g s = evalState (dfsImpl g s) S.empty
 
