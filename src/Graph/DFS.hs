@@ -1,3 +1,5 @@
+{-# LANGUAGE UndecidableInstances #-}
+{-# LANGUAGE FlexibleInstances #-}
 --{-# LANGUAGE FunctionalDependencies #-}
 --{-# LANGUAGE FlexibleInstances #-}
 --{-# LANGUAGE TypeSynonymInstances #-}
@@ -10,6 +12,18 @@ import Control.Monad.State
 import qualified Data.Set as S
 import Graph.Class
 
+
+
+-- | Overload in haskell?
+
+class Print a where
+    printThat :: a -> String
+
+instance (Show a) => Print a where
+    printThat = show
+
+instance (Show a) => Print (a, Int) where -- optional arg
+    printThat (x, n) = concat (replicate n (show x))
 
 
 -- | Lazy depth first search
