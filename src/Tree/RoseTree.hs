@@ -3,10 +3,10 @@ module Tree.RoseTree (
     RoseTree(..),
     RoseTreeZipper(current),
     zipper,
-    goUp,
-    goDown,
-    goLeft,
-    goRight,
+    father,
+    firstChild,
+    leftSibling,
+    rightSibling,
 ) where
 
 
@@ -22,9 +22,9 @@ data RoseTree a
 
 data BreadCrum a
     = BreadCrum {
-        value_  :: a,
-        lefts_  :: [RoseTree a],
-        rights_ :: [RoseTree a]
+        value_  :: a,            -- ^ Value of father
+        lefts_  :: [RoseTree a], -- ^ Left siblings in reverse order
+        rights_ :: [RoseTree a]  -- ^ Right siblings in correct order
     }
 
 data RoseTreeZipper a
@@ -36,17 +36,19 @@ data RoseTreeZipper a
 zipper :: RoseTree a -> RoseTreeZipper a
 zipper rt = Zipper rt []
 
-goUp :: RoseTreeZipper a -> RoseTreeZipper a
-goUp z@(Zipper _ []) = z
-goUp (Zipper rt (BreadCrum{..}:bs)) =
-    let childs = lefts_ ++ [rt] ++ rights_
+father :: RoseTreeZipper a -> RoseTreeZipper a
+father z@(Zipper _ []) = z
+father (Zipper rt (BreadCrum{..}:bs)) =
+    let childs = reverse lefts_ ++ [rt] ++ rights_
     in Zipper (RoseTree value_ childs) bs
 
-goDown :: RoseTreeZipper a -> Int -> RoseTreeZipper a
-goDown z i = undefined
+firstChild :: RoseTreeZipper a -> RoseTreeZipper a
+firstChild z = undefined
 
-goLeft :: RoseTreeZipper a -> RoseTreeZipper a
-goLeft = undefined
+leftSibling :: RoseTreeZipper a -> RoseTreeZipper a
+leftSibling (Zipper rt (BreadCrum{..}:bs)) =
+    let childs = undefined
+    in undefined
 
-goRight :: RoseTreeZipper a -> RoseTreeZipper a
-goRight = undefined
+rightSibling :: RoseTreeZipper a -> RoseTreeZipper a
+rightSibling = undefined
