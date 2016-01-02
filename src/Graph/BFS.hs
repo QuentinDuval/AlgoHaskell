@@ -3,9 +3,6 @@ module Graph.BFS (
     bfsFrom,
 ) where
 
-
-import Control.Arrow
-import Control.Monad.State
 import qualified Data.Set as S
 import Graph.Class
 
@@ -15,14 +12,13 @@ import Graph.Class
 type OrdGraph graphT nodeT edgeT = (ImplicitGraph graphT nodeT edgeT, Ord nodeT)
 
 bfsFrom :: (OrdGraph graphT nodeT edgeT) => graphT -> nodeT -> [nodeT]
-bfsFrom g s = evalState (bfsImpl g [s]) S.empty
+bfsFrom g s = bfsImpl g [s] S.empty
 
-bfsImpl :: (OrdGraph graphT nodeT edgeT) => graphT -> [nodeT] -> State (S.Set nodeT) [nodeT]
-bfsImpl g []      = pure []
-bfsImpl g sources =
-    do  modify (`S.union` S.fromList sources)
-        visited <- get
-        let allAdjacents = target <$> concatMap (adjNodes g) sources
-        let toVisitNext  = filter (`S.notMember` visited) allAdjacents
-        (sources ++) <$> bfsImpl g toVisitNext
+bfsImpl :: (OrdGraph graphT nodeT edgeT) => graphT -> [nodeT] -> S.Set nodeT -> [nodeT]
+bfsImpl g [] _              = []
+bfsImpl g sources visited   =
+    let newVisited   = visited `S.union` S.fromList sources
+        allAdjacents = target <$> concatMap (adjNodes g) sources
+        toVisitNext  = filter (`S.notMember` newVisited) allAdjacents
+    in sources ++ bfsImpl g toVisitNext newVisited
 
