@@ -1,11 +1,12 @@
 {-# LANGUAGE RecordWildCards #-}
 module Queue.Persistent (
+    module Class,
     Queue,
     empty,
     create
 ) where
 
-import Queue.Class
+import Queue.Class as Class
 
 
 -- | FIFO queue implementation

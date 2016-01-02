@@ -31,6 +31,8 @@ library
         Graph.Class
         Graph.DFS
         Puzzles.Fibonacci
+        Tree
+        Tree.RoseTree
     ghc-options: -ferror-spans -O2
 
 executable exe-AlgoHaskell
