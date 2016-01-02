@@ -1,3 +1,4 @@
+{-# LANGUAGE ConstraintKinds #-}
 {-# LANGUAGE FunctionalDependencies #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 module Graph.Class where
@@ -8,6 +9,12 @@ module Graph.Class where
 
 class EdgeTo edgeT nodeT | edgeT -> nodeT where
     target  :: edgeT -> nodeT
+
+class Weighted edgeT weightT | edgeT -> weightT where
+    weight  :: edgeT -> weighT
+
+type WeightedEdgeTo edgeT nodeT weightT
+    = (EdgeTo edgeT nodeT, Weighted edgeT weightT)
 
 
 -- | Implicit graph (may model things like position in a game)
