@@ -20,11 +20,12 @@ bfsImpl :: (OrdGraph graphT nodeT edgeT) => graphT -> Queue nodeT -> S.Set nodeT
 bfsImpl g sources visited
     | Q.isNull sources = []
     | otherwise =
-        let (d, rest)     = (Q.top &&& Q.pop) sources
-            newVisited    = S.insert d visited
-            nextAdjacents = filter (`S.notMember` newVisited) (target <$> adjNodes g d)
+        let (dest, rest)  = (Q.top &&& Q.pop) sources
+            newVisited    = S.insert dest visited
+            nextAdjacents = filter (`S.notMember` newVisited) (target <$> adjNodes g dest)
             toVisitNext   = foldl (flip Q.push) rest nextAdjacents
-        in if S.member d visited
-            then bfsImpl g toVisitNext newVisited
-            else d : bfsImpl g toVisitNext newVisited
+            recurBfs      = bfsImpl g toVisitNext newVisited
+        in if S.member dest visited
+            then recurBfs
+            else dest : recurBfs
 
