@@ -1,6 +1,7 @@
 {-# LANGUAGE ConstraintKinds #-}
 module Graph.DFS (
     dfsFrom,
+    dfsEdgesFrom,
 ) where
 
 import Control.Arrow
@@ -19,12 +20,15 @@ import Graph.Class
 type OrdGraph graphT nodeT edgeT = (ImplicitGraph graphT nodeT edgeT, Ord nodeT)
 
 dfsFrom :: (OrdGraph graphT nodeT edgeT) => graphT -> nodeT -> [nodeT]
-dfsFrom g s = evalState (dfsImpl g s) S.empty
+dfsFrom g s = s : fmap target (dfsEdgesFrom g s)
 
-dfsImpl :: (OrdGraph graphT nodeT edgeT) => graphT -> nodeT -> State (S.Set nodeT) [nodeT]
+dfsEdgesFrom :: (OrdGraph graphT nodeT edgeT) => graphT -> nodeT -> [edgeT]
+dfsEdgesFrom g s = evalState (dfsImpl g s) S.empty
+
+dfsImpl :: (OrdGraph graphT nodeT edgeT) => graphT -> nodeT -> State (S.Set nodeT) [edgeT]
 dfsImpl g s =
     do  modify (S.insert s)
-        (s:) <$> recur (adjNodes g s)
+        recur (adjNodes g s)
     where
         recur []     = return []
         recur (e:es) = do
@@ -32,5 +36,5 @@ dfsImpl g s =
             found <- S.member d <$> get
             if found
                 then recur es
-                else (++) <$> dfsImpl g d <*> recur es
+                else (e:) <$> ((++) <$> dfsImpl g d <*> recur es)
 
