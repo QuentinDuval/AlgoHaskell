@@ -1,14 +1,20 @@
 {-# LANGUAGE RecordWildCards #-}
 module Tree.RoseTree (
     RoseTree(..),
+
+    -- ^ Create and update
     RoseTreeZipper(current),
     zipper,
+    unzipper,
+    deref,
+    update,
+
+    -- ^ Moving in the tree
     father,
     firstChild,
     leftSibling,
     rightSibling,
 ) where
-
 
 
 -- | Rose tree implementation
@@ -35,8 +41,27 @@ data RoseTreeZipper a
         breadCrums  :: [BreadCrum a]
     }
 
+
+-- | Creating and updating
+
 zipper :: RoseTree a -> RoseTreeZipper a
 zipper rt = Zipper rt []
+
+deref :: RoseTreeZipper a -> a
+deref = value . current
+
+update :: RoseTreeZipper a -> (a -> a) -> RoseTreeZipper a
+update z f =
+    let old = current z
+        new = old { value = f (value old) }
+    in z { current = new }
+
+unzipper :: RoseTreeZipper a -> RoseTree a
+unzipper z@(Zipper _ []) = current z
+unzipper z = unzipper (father z)
+
+
+-- | Moving into the tree
 
 father :: RoseTreeZipper a -> RoseTreeZipper a
 father z@(Zipper _ []) = z
