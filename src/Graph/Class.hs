@@ -11,7 +11,7 @@ class EdgeTo edgeT nodeT | edgeT -> nodeT where
     target  :: edgeT -> nodeT
 
 class Weighted edgeT weightT | edgeT -> weightT where
-    weight  :: edgeT -> weighT
+    weight  :: edgeT -> weightT
 
 type WeightedEdgeTo edgeT nodeT weightT
     = (EdgeTo edgeT nodeT, Weighted edgeT weightT)
@@ -30,5 +30,3 @@ class (ImplicitGraph graphT nodeT edgeT) => ExplicitGraph graphT nodeT edgeT
     where
         nodeList :: graphT -> [nodeT]
         addEdge  :: graphT -> edgeT -> graphT
-
-
