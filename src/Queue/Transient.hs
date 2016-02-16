@@ -9,7 +9,8 @@ import Queue.Class
 
 
 -- | FIFO queue implementation
--- Should not be used in persistent setting, as it may lead to O(n) complexity (repeated reverse)
+-- This implementation works great when not used in persistent settings
+-- If it is, it looses its amortized bounds, and may to O(n) complexity (repeated reverse)
 
 data Queue a = Queue {
     front :: [a],
@@ -33,4 +34,3 @@ instance IQueue Queue where
 
     push x (Queue [] bs)  = Queue (reverse bs) [x]
     push x q@(Queue _ bs) = q { back = x : bs }
-
