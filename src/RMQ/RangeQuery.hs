@@ -11,6 +11,7 @@ module RMQ.RangeQuery (
     appendRange,
 ) where
 
+import Algo.Folds
 import Data.Monoid
 
 
@@ -32,7 +33,7 @@ rangeSize Leaf = 0
 rangeSize rmq  = treeSize rmq
 
 rangeFromList :: (Monoid a) => [a] -> RMQ a
-rangeFromList = balancedFold mergeTree . fmap newLeaf
+rangeFromList = rankFold rangeSize mergeTree . fmap newLeaf
 
 rangeToList :: RMQ a -> [a]
 rangeToList = fmap nodeVal . getLeaves
@@ -64,7 +65,7 @@ rangeQuery Node{..} (b, e)
      where mid = rangeSize lhs
 
 appendRange :: (Monoid a) => RMQ a -> RMQ a -> RMQ a
-appendRange lhs rhs = balancedFold mergeTree trees              -- TODO: Could use min lhs tree size to limit rhs decomposition
+appendRange lhs rhs = rankFold rangeSize mergeTree trees        -- TODO: Could use min lhs tree size to limit rhs decomposition
     where trees = unfoldToCompleteTrees lhs ++ getLeaves rhs    -- TODO: In which case, getleaves should take limit size
 
 
@@ -100,22 +101,6 @@ getLeaves = go []
             | 1 == treeSize = n : acc
             | otherwise     = go (go acc rhs) lhs
 
-
-{-
-Implements a binary counter to match and merge trees of same size
-It implicitely assumes that:
-* rmqs in input are ordered in decreasing size
-* rmqs in input are complete binary trees
--}
-balancedFold :: (RMQ a -> RMQ a -> RMQ a) -> [RMQ a] -> RMQ a
-balancedFold merge rmqs = go [head rmqs] (tail rmqs)
-    where
-        go acc []     = foldr1 (flip merge) acc
-        go []  (r:rs) = go [r] rs
-        go acc (r:rs)
-            | rangeSize (head acc) > rangeSize r = go (r : acc) rs
-            | otherwise                          = go (tail acc) (merge (head acc) r : rs)
-
 {-
 Decompose the RMQ into several RMQ represented by complete binary trees:
 * Unique decomposition in RMQs with power of 2 sizes
@@ -126,6 +111,3 @@ unfoldToCompleteTrees Leaf = []
 unfoldToCompleteTrees n@Node{..}
     | rangeSize lhs > rangeSize rhs = lhs : unfoldToCompleteTrees rhs
     | otherwise                     = [n]
-
-
-
