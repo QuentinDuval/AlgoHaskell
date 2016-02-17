@@ -25,12 +25,13 @@ node = Node
 data Nat t = Zero | One t | Two t t
 
 buildBalanced :: [a] -> BinaryTree a
-buildBalanced [] = Leaf
-buildBalanced vals =
-    let len = length vals
-        mid = div (len - 1) 2
-        (left, root : right) = splitAt mid vals
-    in node root (buildBalanced left) (buildBalanced right)
+buildBalanced vals = build (length vals) vals
+  where
+    build _   []   = Leaf
+    build len vals =
+      let mid = div (len - 1) 2
+          (left, root : right) = splitAt mid vals
+      in node root (build mid left) (build (len - mid - 1) right)
 
 
 -- | Accessors
