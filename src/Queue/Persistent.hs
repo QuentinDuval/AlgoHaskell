@@ -32,8 +32,7 @@ instance IQueue Queue where
     isNull  = null . front
     top     = head . front
 
-    pop q@Queue{..} = balance $ q { front = tail front, fSize = fSize - 1 }
-
+    pop q@Queue{..}    = balance $ q { front = tail front, fSize = fSize - 1 }
     push x q@Queue{..} = balance $ q { back = x : back, bSize = bSize + 1 }
 
 
@@ -43,4 +42,3 @@ balance :: Queue a -> Queue a
 balance q@Queue{..}
     | fSize >= bSize = q
     | otherwise      = Queue (front ++ reverse back) [] (fSize + bSize) 0
-

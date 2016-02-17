@@ -5,6 +5,7 @@ module Test.Queue (
 
 import Queue.Class
 import qualified Queue.Persistent as Persistent
+import qualified Queue.RealTime as RealTime
 import qualified Queue.Transient as Transient
 import Queue.Utils
 import Test.HUnit
@@ -15,7 +16,8 @@ import Test.HUnit
 runQueueTests :: Test
 runQueueTests = TestList [
         testQueue Transient.create,
-        testQueue Persistent.create
+        testQueue RealTime.create,
+        testQueue Persistent.create        
     ]
 
 
@@ -25,4 +27,3 @@ testQueue create =
         q2 = foldl (flip push) q1 [13 .. 100 :: Int]
         res = consume (:) [] q2
     in TestCase $ assertEqual "Pop order" [100, 99 .. 1] res
-
