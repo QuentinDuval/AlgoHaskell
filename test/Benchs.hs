@@ -15,5 +15,5 @@ runAllBenchs = do
     hSetEncoding stdout utf8
 
     -- Run all benches
-    -- runQueueBench
-    runFibBench
+    runQueueBench
+    -- runFibBench

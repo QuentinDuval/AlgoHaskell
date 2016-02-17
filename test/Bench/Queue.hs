@@ -7,6 +7,7 @@ import Criterion.Main
 
 import Queue.Class
 import qualified Queue.Persistent as Persistent
+import qualified Queue.RealTime as RealTime
 import qualified Queue.Transient as Transient
 import Queue.Utils
 
@@ -17,14 +18,18 @@ runQueueBench =
         bgroup "Queue" [
             bgroup "NoPersist" [
                 bench "Transient"  $ nf (testNoPersist 1000)  Transient.create  ,
+                bench "RealTime"   $ nf (testNoPersist 1000)  RealTime.create   ,
                 bench "Persistent" $ nf (testNoPersist 1000)  Persistent.create ,
                 bench "Transient"  $ nf (testNoPersist 10000) Transient.create  ,
+                bench "RealTime"   $ nf (testNoPersist 10000) RealTime.create  ,
                 bench "Persistent" $ nf (testNoPersist 10000) Persistent.create ]
             ,
             bgroup "WithPersist" [
                 bench "Transient"  $ nf (testWithPersist 1000)  Transient.create  ,
+                bench "RealTime"   $ nf (testWithPersist 1000)  RealTime.create   ,
                 bench "Persistent" $ nf (testWithPersist 1000)  Persistent.create ,
                 bench "Transient"  $ nf (testWithPersist 10000) Transient.create  ,
+                bench "RealTime"   $ nf (testWithPersist 10000)  RealTime.create  ,
                 bench "Persistent" $ nf (testWithPersist 10000) Persistent.create ]
             ]
         ]
@@ -44,4 +49,3 @@ testWithPersist n create =
         q2 = foldl (flip push) q1 [1 .. n]
         qs = replicate 1000 (pop q2)
     in sum $ fmap top qs
-
