@@ -36,18 +36,15 @@ instance IQueue Queue where
 
     pop q@Queue{..}        = exec $ q { front = tail front }
 
-    push x (Queue [] [] _) = Queue [x] [] []
+    push x (Queue [] [] _) = create [x]
     push x q@Queue{..}     = exec $ q { back = x : back }
 
 
 -- | Private
 
 exec :: Queue a -> Queue a
-exec q@(Queue _ _ [])     = balance q           -- ^ No tasks left, time to reverse
-exec q@(Queue _ _ (s:sc)) = q { schedule = sc } -- ^ Execute first task
-
-balance :: Queue a -> Queue a
-balance q@Queue{..} = Queue fs [] fs
+exec q@(Queue _ _ (s:sc))  = q { schedule = sc }  -- ^ Pattern match to execute first task
+exec (Queue front back []) = Queue fs [] fs       -- ^ No tasks left, time to reverse
   where fs = incrementalReverse front back []
 
 incrementalReverse :: [a] -> [a] -> [a] -> [a]
