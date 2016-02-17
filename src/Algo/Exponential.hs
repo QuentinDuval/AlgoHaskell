@@ -1,5 +1,5 @@
 {-# LANGUAGE BangPatterns #-}
-module Numerics (
+module Algo.Exponential (
     fastExp,
     fastExpTailRec,
     fastExpNaiveRec,
@@ -15,11 +15,11 @@ fastExp = fastExpTailRec
 
 fastExpTailRec :: (Monoid a) => a -> Int -> a
 fastExpTailRec = recur mempty
-    where
-        recur !acc !val e
-            | e <= 0    = acc
-            | odd e     = recur (val <> acc) val (e - 1)
-            | otherwise = recur acc (val <> val) (div e 2)
+  where
+    recur !acc !val e
+      | e <= 0    = acc
+      | odd e     = recur (val <> acc) val (e - 1)
+      | otherwise = recur acc (val <> val) (div e 2)
 
 fastExpNaiveRec :: (Monoid a) => a -> Int -> a
 fastExpNaiveRec val e
@@ -27,4 +27,3 @@ fastExpNaiveRec val e
     | odd e     = val <> res <> res
     | otherwise = res <> res
     where res = fastExpNaiveRec val (div e 2)
-

@@ -5,10 +5,10 @@ module Puzzles.Fibonacci (
     fibMatrixTR,
 ) where
 
+import Algo.Exponential
 import Control.Monad
 import Control.Monad.ST
 import Data.STRef.Strict
-import Numerics
 
 
 -- | Implementation based on the function iterate (linear complexity)
@@ -52,4 +52,3 @@ fibMatrix = fibRes . fastExpNaiveRec (FibMatrix 1 1 1 0)
 
 fibMatrixTR :: Int -> Integer
 fibMatrixTR = fibRes . fastExpTailRec (FibMatrix 1 1 1 0)
-
