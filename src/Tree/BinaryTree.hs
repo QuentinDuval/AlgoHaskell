@@ -49,9 +49,5 @@ buildBalanced vals = fst $ build (length vals) vals
 
 -- | Accessors
 
--- getRank :: BinaryTree a -> Int
--- getRank Leaf      = 0
--- getRank n@Node{}  = rank n
-
 getValue :: BinaryTree a -> a
 getValue = val
