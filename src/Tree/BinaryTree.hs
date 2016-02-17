@@ -48,6 +48,26 @@ instance Foldable BinaryTree where
     visit prev n@Node{..}  = visit (reduce val (visit prev rhs)) lhs
 
 
+-- | Rotate Left
+--   (a)
+--  /  \
+-- x   (c)
+--     / \
+--   (b)  y
+--
+--      (c)
+--     /  \
+--   (a)   y
+--  /  \
+-- x   (b)
+
+rotateL :: BinaryTree a -> BinaryTree a
+rotateL a@Node{ rhs = c@Node{ lhs = b } } = c { lhs = a { rhs = b } }
+
+rotateR :: BinaryTree a -> BinaryTree a
+rotateR c@Node{ lhs = a@Node{ rhs = b } } = a { rhs = c { lhs = b } }
+
+
 -- | Utils
 
 maxDepth, minDepth :: BinaryTree a -> Int
