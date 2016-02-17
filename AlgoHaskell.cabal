@@ -16,6 +16,7 @@ library
         Queue.Transient
         Queue.Utils
         RMQ.RangeQuery
+        Tree
         Utils.Monoids
     build-depends:
         HUnit -any,
@@ -34,7 +35,7 @@ library
         Graph.Class
         Graph.DFS
         Puzzles.Fibonacci
-        Tree
+        Tree.BinaryTree
         Tree.RoseTree
     ghc-options: -ferror-spans -O2
 
