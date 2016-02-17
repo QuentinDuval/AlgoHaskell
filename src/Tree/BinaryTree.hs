@@ -1,6 +1,9 @@
+{-# LANGUAGE RecordWildCards  #-}
 module Tree.BinaryTree (
-  BinaryTree,
+  BinaryTree(..),
+  leaf, node,
   buildBalanced,
+  minDepth, maxDepth,
 ) where
 
 
@@ -24,18 +27,8 @@ node = Node
 
 
 -- | Construction of a balanced binary tree
-
--- ^ Naive implementation with O(log N) traversals, hence O(N log N) complexity
-buildBalancedNaive :: [a] -> BinaryTree a
-buildBalancedNaive vals = build (length vals) vals
-  where
-    build _   []   = Leaf
-    build len vals =
-      let mid = div (len - 1) 2
-          (left, root : right) = splitAt mid vals
-      in node root (build mid left) (build (len - mid - 1) right)
-
--- ^ Better implementation with 2 traversals, hence O(N) complexity
+-- Implementation with 2 traversals: O(N) complexity
+-- Calling splitAt or length at each level would make it O(N log N)
 buildBalanced :: [a] -> BinaryTree a
 buildBalanced vals = fst $ build (length vals) vals
   where
@@ -47,7 +40,21 @@ buildBalanced vals = fst $ build (length vals) vals
       in (node root ltree rtree, remainingVal)
 
 
--- | Accessors
+-- | Traversal
 
-getValue :: BinaryTree a -> a
-getValue = val
+instance Foldable BinaryTree where
+  foldr reduce = visit where
+    visit prev Leaf        = prev
+    visit prev n@Node{..}  = visit (reduce val (visit prev rhs)) lhs
+
+
+-- | Utils
+
+maxDepth, minDepth :: BinaryTree a -> Int
+maxDepth = getDepth max
+minDepth = getDepth min
+
+getDepth :: (Int -> Int -> Int) -> BinaryTree a -> Int
+getDepth merger = visit where
+  visit Leaf = 0
+  visit Node{..} = 1 + merger (visit lhs) (visit rhs)
