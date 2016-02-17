@@ -3,9 +3,10 @@ module Main (
 ) where
 
 import Benchs
+import System.Environment
 
 
 main :: IO ()
-main = runAllBenchs
-
-
+main = do
+  args <- getArgs
+  runAllBenchs args

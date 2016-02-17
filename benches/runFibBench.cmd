@@ -1,0 +1,1 @@
+..\dist\build\exe-AlgoHaskell\exe-AlgoHaskell.exe "Fibonacci"

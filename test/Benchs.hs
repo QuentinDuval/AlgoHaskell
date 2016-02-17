@@ -5,15 +5,25 @@ module Benchs (
 
 import Bench.Queue
 import Bench.Puzzles.FibBench
+import qualified Data.Set as S
 import System.IO
 
 
-runAllBenchs :: IO ()
-runAllBenchs = do
-    -- Settings for better output by criterion
-    hSetBuffering stdout NoBuffering
-    hSetEncoding stdout utf8
+-- | Run all benches provided as arguments
 
-    -- Run all benches
-    runQueueBench
-    -- runFibBench
+runAllBenchs :: [String] -> IO ()
+runAllBenchs args = do
+  -- Settings for better output by criterion
+  hSetBuffering stdout NoBuffering
+  hSetEncoding stdout utf8
+  -- Run all unique benches
+  let noDup = S.toList $ S.fromList args
+  mapM_ runBench noDup
+
+
+-- | Available benches
+
+runBench :: String -> IO ()
+runBench "Queue"      = runQueueBench
+runBench "Fibonacci"  = runFibBench
+runBench _            = pure ()
