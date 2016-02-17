@@ -19,7 +19,7 @@ import Queue.Class as Class
 
 data Queue a  = Queue {
   front ::    [a],  -- ^ Front of the queue (lazy)
-  back  ::    [a],  -- ^ Back of the queue (lazy)
+  back  ::    [a],  -- ^ Back of the queue (TODO - does not need to be lazy)
   schedule :: [a]   -- ^ Schedule of the queue (list of lazy tasks to trigger)
 } deriving (Show, Eq, Ord)
 
