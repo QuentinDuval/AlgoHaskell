@@ -8,12 +8,13 @@ module Algo.Folds (
 - @requires that inputs are ordered in decreasing size
 -}
 rankFold :: (a -> Int) -> (a -> a -> a) -> [a] -> a
-rankFold rank merge rmqs = go [head rmqs] (tail rmqs)
+rankFold rank merge = go []
   where
-    go acc []     = foldr1 (flip merge) acc
-    go []  (r:rs) = go [r] rs
-    go acc (r:rs)
-      | rank (head acc) > rank r = go (r : acc) rs
-      | otherwise                = go (tail acc) (merge (head acc) r : rs)
+    go []  (r:rs) = go [r] rs                 -- ^ Start: no binary counter
+    go acc []     = foldr1 (flip merge) acc   -- ^ End:   merge counter
+    go acc@(c:cs) (r:rs)                      -- ^ Combine equal ranks
+      | rank c > rank r = go (r : acc) rs
+      | rank r > rank c = error "Inputs are not ordered"
+      | otherwise       = go cs (merge c r : rs)
 
 -- TODO: add a balanced fold not based on ranks and assuming equal sizes at start
