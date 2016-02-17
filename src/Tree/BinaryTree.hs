@@ -22,11 +22,10 @@ leaf a = node a Leaf Leaf
 node :: a -> BinaryTree a -> BinaryTree a -> BinaryTree a
 node = Node
 
-data Nat t = Zero | One t | Two t t
-
 buildBalanced :: [a] -> BinaryTree a
 buildBalanced vals = build (length vals) vals
   where
+    -- TODO: Avoid going through the list each time!
     build _   []   = Leaf
     build len vals =
       let mid = div (len - 1) 2
