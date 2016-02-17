@@ -25,7 +25,7 @@ node = Node
 
 -- | Construction of a balanced binary tree
 
--- ^ Naive implementation with O(log N) traversals
+-- ^ Naive implementation with O(log N) traversals, hence O(N log N) complexity
 buildBalancedNaive :: [a] -> BinaryTree a
 buildBalancedNaive vals = build (length vals) vals
   where
@@ -35,7 +35,7 @@ buildBalancedNaive vals = build (length vals) vals
           (left, root : right) = splitAt mid vals
       in node root (build mid left) (build (len - mid - 1) right)
 
--- ^ Better implementation with 2 traversals
+-- ^ Better implementation with 2 traversals, hence O(N) complexity
 buildBalanced :: [a] -> BinaryTree a
 buildBalanced vals = fst $ build (length vals) vals
   where
