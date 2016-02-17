@@ -50,4 +50,5 @@ exec (Queue front back []) = Queue fs [] fs       -- ^ No tasks left, time to re
 incrementalReverse :: [a] -> [a] -> [a] -> [a]
 incrementalReverse fronts [] acc = fronts ++ acc
 incrementalReverse [] [back] acc = back : acc
-incrementalReverse (f:fronts) (b:backs) acc = f : incrementalReverse fronts backs (b:acc)
+incrementalReverse (f:fronts) (b:backs) acc =
+  (:) f $! incrementalReverse fronts backs (b:acc) -- ^ Forcing the cons is key here (to force the reverse by steps)
