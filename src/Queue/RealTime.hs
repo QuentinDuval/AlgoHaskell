@@ -11,7 +11,11 @@ import Queue.Class as Class
 
 -- | FIFO queue implementation
 -- This implementation works great in persistent settings
--- In addition, by using a schedule, it trades amortized bounds to worse-case bounds
+-- By using a schedule, it trades amortized bounds to worse-case bounds
+
+-- Invariants:
+-- * The back queue cannot be more than 1 bigger than the front queue
+-- * No size tacking is needed for when to reverse, we can use the schedule
 
 data Queue a  = Queue {
   front ::    [a],  -- ^ Front of the queue (lazy)
@@ -30,8 +34,10 @@ instance IQueue Queue where
     isNull  = null . front
     top     = head . front
 
-    pop q@Queue{..}    = exec $ q { front = tail front }
-    push x q@Queue{..} = exec $ q { back = x : back }
+    pop q@Queue{..}        = exec $ q { front = tail front }
+
+    push x (Queue [] [] _) = Queue [x] [] []
+    push x q@Queue{..}     = exec $ q { back = x : back }
 
 
 -- | Private
@@ -46,5 +52,5 @@ balance q@Queue{..} = Queue fs [] fs
 
 incrementalReverse :: [a] -> [a] -> [a] -> [a]
 incrementalReverse fronts [] acc = fronts ++ acc
-incrementalReverse [] backs  acc = reverse backs ++ acc
+incrementalReverse [] [back] acc = back : acc
 incrementalReverse (f:fronts) (b:backs) acc = f : incrementalReverse fronts backs (b:acc)
