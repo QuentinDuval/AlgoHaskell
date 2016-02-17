@@ -46,6 +46,6 @@ testNoPersist n create =
 testWithPersist :: (IQueue q) => Int -> ([Int] -> q Int) -> Int
 testWithPersist n create =
     let q1 = create [1 :: Int]
-        q2 = foldl (flip push) q1 [1 .. n]
-        qs = replicate n (pop q2)
+        q2 = scanl (flip push) q1 [1 .. n]
+        qs = fmap ((!! 100) . iterate (pop . push 1)) q2
     in sum $ fmap top qs
