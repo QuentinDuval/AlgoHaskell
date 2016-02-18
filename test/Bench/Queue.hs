@@ -16,23 +16,22 @@ import Queue.Utils
 
 runQueueBench :: IO ()
 runQueueBench = defaultMain [
-  runOneBench 1000  ,
-  runOneBench 10000 ]
+    bgroup "Queue" [
+      runNoPersist 1000,    runNoPersist 10000,
+      runWithPersist 1000,  runWithPersist 10000 ]
+  ]
 
-runOneBench :: Int -> Benchmark
-runOneBench n =
-  let name = "Queue_" ++ show n
-  in bgroup name [
-      bgroup "NoPersist" [
-          bench "Transient"  $ nf (testNoPersist n)  Transient.create  ,
-          bench "RealTime"   $ nf (testNoPersist n)  RealTime.create   ,
-          bench "Persistent" $ nf (testNoPersist n)  Persistent.create ]
-      ,
-      bgroup "WithPersist" [
-          bench "Transient"  $ nf (testWithPersist n)  Transient.create  ,
-          bench "RealTime"   $ nf (testWithPersist n)  RealTime.create   ,
-          bench "Persistent" $ nf (testWithPersist n)  Persistent.create ]
-      ]
+runNoPersist :: Int -> Benchmark
+runNoPersist n = bgroup ("NoPersist_" ++ show n) [
+    bench "Transient"  $ nf (testNoPersist n)  Transient.create  ,
+    bench "RealTime"   $ nf (testNoPersist n)  RealTime.create   ,
+    bench "Persistent" $ nf (testNoPersist n)  Persistent.create ]
+
+runWithPersist :: Int -> Benchmark
+runWithPersist n = bgroup ("WithPersist_" ++ show n) [
+    bench "Transient"  $ nf (testWithPersist n)  Transient.create  ,
+    bench "RealTime"   $ nf (testWithPersist n)  RealTime.create   ,
+    bench "Persistent" $ nf (testWithPersist n)  Persistent.create ]
 
 
 -- ^ Operation count: 3 * n
