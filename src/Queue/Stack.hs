@@ -8,7 +8,8 @@ module Queue.Stack (
 import Queue.Class as Class
 
 
--- | Implementation of a LIFO Queue
+-- | Implementation of a LIFO Queue (Stack)
+-- Mainly used as a reference inside the benchmarks
 
 newtype Stack a
   = Stack { getStack :: [a] }

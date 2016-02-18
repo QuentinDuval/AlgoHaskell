@@ -9,6 +9,7 @@ import Queue.Class
 
 
 -- | Implementation of a FIFO queue based on the data sequence
+-- This implementation is merely used to have a reference in the benchmarks
 
 newtype DataSeqQueue a
   = DataSeqQueue { getSequence :: S.Seq a }

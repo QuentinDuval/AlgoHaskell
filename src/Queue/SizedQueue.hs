@@ -8,6 +8,7 @@ import Queue.Class as Class
 
 
 -- | Generic implementation to add access to size in constant time
+-- For implementations that do not maintain the size as a field
 
 data SizedQueue q a
   = SizedQueue {
