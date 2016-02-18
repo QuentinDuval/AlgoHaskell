@@ -10,7 +10,7 @@ import Data.Vector as V
 
 
 -- | Tree like view of a array list
--- TODO: Somehow, it is like an IntMap?
+-- Should we use an IntMap or the Vector.Persistent in persistent-vector package?
 
 branching :: Int
 branching = 32
