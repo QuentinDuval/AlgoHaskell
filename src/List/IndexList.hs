@@ -10,6 +10,7 @@ module List.IndexList (
 
 
 -- ^ A complete binary tree
+
 data Tree a
   = Leaf { leafVal :: a }
   | Node {
@@ -26,6 +27,7 @@ linkNodes l r = Node (treeSize l + treeSize r) l r
 
 
 -- ^ Binary counter on trees, with two for efficiency
+
 data DigitTree a
   = Zero
   | One { one      :: Tree a }
@@ -62,26 +64,40 @@ getLength :: IndexedList a -> Int
 getLength = sum . fmap digitSize
 
 at :: IndexedList a -> Int -> a
-at = lookupList
+at [] _ = indexError
+at (d:ds) i
+  | i >= dSize           = at ds (i - dSize)
+  | i < treeSize (one d) = lookupNode (one d) i
+  | otherwise            = lookupNode (two d) i
+  where dSize = digitSize d
+
+updateAt :: IndexedList a -> Int -> (a -> a) -> IndexedList a
+updateAt [] _ _ = indexError
+updateAt (d:ds) i f
+  | i >= dSize           = d : updateAt ds (i - dSize) f
+  | i < treeSize (one d) = d { one = updateNode (one d) i f } : ds
+  | otherwise            = d { two = updateNode (two d) i f } : ds
+  where dSize = digitSize d
+
+-- TODO: eliminate redundancy in 'at' and 'tree lookups'
 
 
 -- | Private
 
 indexError = error "Error: index out of bound"
 
-lookupList :: IndexedList a -> Int -> a
-lookupList [] _ = indexError
-lookupList (d:ds) i
-  | i >= dSize           = lookupList ds (i - dSize)
-  | i < treeSize (one d) = lookupTree (one d) i
-  | otherwise            = lookupTree (two d) i
-  where dSize = digitSize d
-
-lookupTree :: Tree a -> Int -> a
-lookupTree Leaf{..} _ = leafVal
+lookupNode :: Tree a -> Int -> a
+lookupNode Leaf{..} _ = leafVal
 lookupTree Node{..} i
   | i < lSize = lookupTree lhs i
   | otherwise = lookupTree rhs (i - lSize)
+  where lSize = treeSize lhs
+
+updateNode :: Tree a -> Int -> (a -> a) -> Tree a
+updateNode Leaf{..}   _ f = Leaf (f leafVal)
+updateNode n@Node{..} i f
+  | i < lSize = n { lhs = updateNode lhs i f }
+  | otherwise = n { rhs = updateNode rhs (i - lSize) f }
   where lSize = treeSize lhs
 
 pushTree :: Tree a -> IndexedList a -> IndexedList a
