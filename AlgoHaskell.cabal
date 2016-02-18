@@ -11,6 +11,7 @@ library
         Graph
         Graph.AdjList
         Queue.Class
+        Queue.DataSeq
         Queue.Persistent
         Queue.RealTime
         Queue.SizedQueue
