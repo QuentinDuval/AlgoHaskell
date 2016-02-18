@@ -8,6 +8,7 @@ import Criterion.Main
 import Queue.Class
 import qualified Queue.Persistent as Persistent
 import qualified Queue.RealTime as RealTime
+import qualified Queue.Stack as Stack
 import qualified Queue.Transient as Transient
 import Queue.Utils
 
@@ -25,13 +26,15 @@ runNoPersist :: Int -> Benchmark
 runNoPersist n = bgroup ("NoPersist_" ++ show n) [
     bench "Transient"  $ nf (testNoPersist n)  Transient.create  ,
     bench "RealTime"   $ nf (testNoPersist n)  RealTime.create   ,
-    bench "Persistent" $ nf (testNoPersist n)  Persistent.create ]
+    bench "Persistent" $ nf (testNoPersist n)  Persistent.create ,
+    bench "Stack"      $ nf (testNoPersist n)  Stack.create      ]
 
 runWithPersist :: Int -> Benchmark
 runWithPersist n = bgroup ("WithPersist_" ++ show n) [
     bench "Transient"  $ nf (testWithPersist n)  Transient.create  ,
     bench "RealTime"   $ nf (testWithPersist n)  RealTime.create   ,
-    bench "Persistent" $ nf (testWithPersist n)  Persistent.create ]
+    bench "Persistent" $ nf (testWithPersist n)  Persistent.create ,
+    bench "Stack"      $ nf (testWithPersist n)  Stack.create      ]
 
 
 -- ^ Operation count: 3 * n
