@@ -2,7 +2,7 @@ module Test.List.IndexListTest (
   runIndexListTests,
 ) where
 
-
+import Data.Foldable
 import List.IndexList
 import Test.HUnit
 
@@ -10,10 +10,28 @@ import Test.HUnit
 
 runIndexListTests :: Test
 runIndexListTests = TestList
-    [ indexAccessTest, indexUpdateTest ]
+    [ pushPopTest, foldableTest, indexAccessTest, indexUpdateTest ]
 
 
 -- | Test cases
+
+pushPopTest :: Test
+pushPopTest =
+  let l1 = fromList [0 .. 100 :: Int]
+      l2 = popFront $ popFront l1
+  in TestCase $ do
+    assertEqual "Old Head" 0 $ getFirst l1
+    assertEqual "New Head" 2 $ getFirst l2
+
+
+foldableTest :: Test
+foldableTest =
+  let l = fromList [0 .. 100 :: Int]
+  in TestCase $ do
+    assertEqual "Length"  101      $ length l
+    assertEqual "To List" [0..100] $ toList l
+    assertEqual "Functor" [1..101] $ toList (fmap (+1) l)
+    assertEqual "Sum all" 5050     $ sum l
 
 indexAccessTest :: Test
 indexAccessTest =
