@@ -11,6 +11,7 @@ import Data.Vector as V
 
 -- | Tree like view of a array list
 -- Should we use an IntMap or the Vector.Persistent in persistent-vector package?
+-- https://hackage.haskell.org/package/persistent-vector-0.1.1/docs/Data-Vector-Persistent.html
 
 branching :: Int
 branching = 32
