@@ -48,6 +48,8 @@ digitSize (Two f s) = treeSize f + treeSize s
 -- TODO: Based on this implementation:
 -- * Provide a vector like data structure (with push back)
 -- * Find a way to efficiently merge the lists
+-- TODO: eliminate redundancy in 'at' and 'tree lookups'
+-- TODO: make it foldable and traversable
 
 type IndexedList a = [DigitTree a]
 
@@ -87,8 +89,6 @@ updateAt f (d:ds) i
   | i < treeSize (one d) = d { one = updateNode f (one d) i } : ds
   | otherwise            = d { two = updateNode f (two d) i } : ds
   where dSize = digitSize d
-
--- TODO: eliminate redundancy in 'at' and 'tree lookups'
 
 
 -- | Private
