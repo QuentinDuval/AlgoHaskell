@@ -11,6 +11,7 @@ library
         Graph
         Graph.AdjList
         List.ArrayList
+        List.IndexList
         Queue.Class
         Queue.DataSeq
         Queue.Persistent
