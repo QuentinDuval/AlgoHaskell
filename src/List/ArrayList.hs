@@ -1,4 +1,4 @@
-module ArrayList (
+module List.ArrayList (
   ArrayList,
   newArray,
   pushBack,

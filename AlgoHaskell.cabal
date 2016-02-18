@@ -10,6 +10,7 @@ library
         Algo.Folds
         Graph
         Graph.AdjList
+        List.ArrayList
         Queue.Class
         Queue.DataSeq
         Queue.Persistent
