@@ -44,6 +44,10 @@ instance IQueue Queue where
   push x q@Queue{..}     = exec $ q { back = x : back }
 
 
+instance ISizedQueue Queue where
+  getSize q = length (front q) + length (back q)  -- ^ Inefficient, use the SizedQueue wrapper
+
+
 -- | Private
 
 exec :: Queue a -> Queue a

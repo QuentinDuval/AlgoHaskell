@@ -13,6 +13,7 @@ library
         Queue.Class
         Queue.Persistent
         Queue.RealTime
+        Queue.SizedQueue
         Queue.Transient
         Queue.Utils
         RMQ.RangeQuery

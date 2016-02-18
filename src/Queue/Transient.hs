@@ -37,3 +37,7 @@ instance IQueue Queue where
 
     push x (Queue [] bs)  = Queue (reverse bs) [x]
     push x q@(Queue _ bs) = q { back = x : bs }
+
+
+instance ISizedQueue Queue where
+    getSize q = length (front q) + length (back q)  -- ^ Inefficient, use the SizedQueue wrapper

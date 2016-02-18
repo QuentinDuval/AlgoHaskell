@@ -35,11 +35,14 @@ create xs = empty { front = xs, fSize = length xs }
 
 instance IQueue Queue where
 
-    isNull  = null . front
-    top     = head . front
+  isNull  = null . front
+  top     = head . front
 
-    pop q@Queue{..}    = balance $ q { front = tail front, fSize = fSize - 1 }
-    push x q@Queue{..} = balance $ q { back = x : back, bSize = bSize + 1 }
+  pop q@Queue{..}    = balance $ q { front = tail front, fSize = fSize - 1 }
+  push x q@Queue{..} = balance $ q { back = x : back, bSize = bSize + 1 }
+
+instance ISizedQueue Queue where
+  getSize q = fSize q + bSize q
 
 
 -- | Private
