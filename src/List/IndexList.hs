@@ -1,11 +1,14 @@
 {-# LANGUAGE RecordWildCards #-}
 module List.IndexList (
   IndexedList,
+  empty,
+  fromList,
   pushFront,
   popFront,
   getFirst,
   getLength,
   at,
+  updateAt,
 ) where
 
 
@@ -51,6 +54,12 @@ type IndexedList a = [DigitTree a]
 
 -- | Public
 
+empty :: IndexedList a
+empty = []
+
+fromList :: [a] -> IndexedList a
+fromList = foldr pushFront empty
+
 pushFront :: a -> IndexedList a -> IndexedList a
 pushFront a = pushTree (Leaf a)
 
@@ -71,12 +80,12 @@ at (d:ds) i
   | otherwise            = lookupNode (two d) i
   where dSize = digitSize d
 
-updateAt :: IndexedList a -> Int -> (a -> a) -> IndexedList a
-updateAt [] _ _ = indexError
-updateAt (d:ds) i f
-  | i >= dSize           = d : updateAt ds (i - dSize) f
-  | i < treeSize (one d) = d { one = updateNode (one d) i f } : ds
-  | otherwise            = d { two = updateNode (two d) i f } : ds
+updateAt :: (a -> a) -> IndexedList a -> Int -> IndexedList a
+updateAt _ [] _ = indexError
+updateAt f (d:ds) i
+  | i >= dSize           = d : updateAt f ds (i - dSize)
+  | i < treeSize (one d) = d { one = updateNode f (one d) i } : ds
+  | otherwise            = d { two = updateNode f (two d) i } : ds
   where dSize = digitSize d
 
 -- TODO: eliminate redundancy in 'at' and 'tree lookups'
@@ -93,11 +102,11 @@ lookupTree Node{..} i
   | otherwise = lookupTree rhs (i - lSize)
   where lSize = treeSize lhs
 
-updateNode :: Tree a -> Int -> (a -> a) -> Tree a
-updateNode Leaf{..}   _ f = Leaf (f leafVal)
-updateNode n@Node{..} i f
-  | i < lSize = n { lhs = updateNode lhs i f }
-  | otherwise = n { rhs = updateNode rhs (i - lSize) f }
+updateNode :: (a -> a) -> Tree a -> Int -> Tree a
+updateNode f Leaf{..}   _ = Leaf (f leafVal)
+updateNode f n@Node{..} i
+  | i < lSize = n { lhs = updateNode f lhs i }
+  | otherwise = n { rhs = updateNode f rhs (i - lSize) }
   where lSize = treeSize lhs
 
 pushTree :: Tree a -> IndexedList a -> IndexedList a
