@@ -9,8 +9,11 @@ import Queue.Class
 
 
 -- | FIFO queue implementation
--- This implementation works great when not used in persistent settings
--- If it is, it looses its amortized bounds, and may to O(n) complexity (repeated reverse)
+-- This implementation works great when *not* used in persistent settings
+--
+-- When used in persistent settings:
+-- * One can constantly trigger "reverse" by adding when the front list is empty
+-- * This would degrade the queue O(1) amortized bound to O(N).
 
 data Queue a = Queue {
     front :: [a],

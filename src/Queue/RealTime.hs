@@ -16,6 +16,10 @@ import Queue.Class as Class
 -- Invariants:
 -- * The back queue cannot be more than 1 bigger than the front queue
 -- * No size tacking is needed for when to reverse, we can use the schedule
+--
+-- Remaining issues:
+-- * Left associative list catenation means reconstructing the font many time
+-- * In practice, the rear list doubles each time, so the effect is reduced
 
 data Queue a  = Queue {
   front ::    [a],  -- ^ Front of the queue (lazy)
@@ -31,13 +35,13 @@ create xs = empty { front = xs }
 
 instance IQueue Queue where
 
-    isNull  = null . front
-    top     = head . front
+  isNull  = null . front
+  top     = head . front
 
-    pop q@Queue{..}        = exec $ q { front = tail front }
+  pop q@Queue{..}        = exec $ q { front = tail front }
 
-    push x (Queue [] [] _) = create [x]
-    push x q@Queue{..}     = exec $ q { back = x : back }
+  push x (Queue [] [] _) = create [x]
+  push x q@Queue{..}     = exec $ q { back = x : back }
 
 
 -- | Private

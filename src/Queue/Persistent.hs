@@ -10,8 +10,14 @@ import Queue.Class as Class
 
 
 -- | FIFO queue implementation
--- Can be used in persistent setting, as it you cannot trigger several times
--- the reverse but by consuming enough entries to amortize it.
+-- This implementation works great in persistent settings
+--
+-- You cannot trigger several times the reverse without first paying
+-- for its amortization (by consuming or adding enough entries).
+--
+-- Invariants:
+-- * The back queue cannot be more than 1 bigger than the front queue
+-- * We maintain it by keeping the length of front and rear lists
 
 data Queue a = Queue {
     front :: [a],
