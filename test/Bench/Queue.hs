@@ -17,8 +17,8 @@ import Queue.Utils
 runQueueBench :: IO ()
 runQueueBench = defaultMain [
     bgroup "Queue" [
-      runNoPersist 1000,    runNoPersist 10000,
-      runWithPersist 1000,  runWithPersist 10000 ]
+      runNoPersist   1000, runNoPersist   10000 ,
+      runWithPersist 1000, runWithPersist 10000 ]
   ]
 
 runNoPersist :: Int -> Benchmark
@@ -43,7 +43,7 @@ testNoPersist n create =
     in top q3
 
 
--- ^ Operation count: 201 * n
+-- ^ Operation count: 202 * n
 testWithPersist :: (IQueue q) => Int -> ([Int] -> q Int) -> Int
 testWithPersist n create =
     let q1 = create [1 :: Int]
