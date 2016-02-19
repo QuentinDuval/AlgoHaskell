@@ -2,9 +2,12 @@
 module List.SkewIndexList (
   IndexedList,
   module Class,
+  empty,
+  fromList,
 ) where
 
-import List.IndexListClass as Class
+import List.IndexListClass as Class hiding (empty, fromList)
+import qualified List.IndexListClass as C (empty, fromList)
 
 
 {-
@@ -43,6 +46,12 @@ newtype IndexedList a = IndexedList {
 
 
 -- | Public
+
+empty :: IndexedList a
+empty = C.empty
+
+fromList :: [a] -> IndexedList a
+fromList = C.fromList
 
 instance IIndexList IndexedList where
   empty         = IndexedList []

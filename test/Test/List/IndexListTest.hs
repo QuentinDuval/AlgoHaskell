@@ -5,7 +5,7 @@ module Test.List.IndexListTest (
 import Data.Foldable
 import qualified List.IndexList as Naive
 import qualified List.SkewIndexList as Skew
-import List.IndexListClass
+import List.IndexListClass hiding (empty, fromList)
 import Test.HUnit
 
 
@@ -14,11 +14,10 @@ import Test.HUnit
 runIndexListTests :: Test
 runIndexListTests = TestList [
     TestLabel "Naive" $
-      TestList $ [ pushPopTest, foldableTest, indexAccessTest, indexUpdateTest ] <*> [ fromList :: Constructor Naive.IndexedList ],
+      TestList $ [ pushPopTest, foldableTest, indexAccessTest, indexUpdateTest ] <*> [ Naive.fromList ],
     TestLabel "Skew" $
-      TestList $ [ pushPopTest, foldableTest, indexAccessTest, indexUpdateTest ] <*> [ fromList :: Constructor Skew.IndexedList ]
+      TestList $ [ pushPopTest, foldableTest, indexAccessTest, indexUpdateTest ] <*> [ Skew.fromList ]
   ]
-
 
 type Constructor l = ([Int] -> l Int)
 
