@@ -11,13 +11,29 @@ module List.IndexList (
 ) where
 
 
+{-
+First naive implementation of random access list (based on Okasaki's book)
+Based on traditional binary numbers: 2 ^ i
+
+Complexity:
+* List operations in O(log N)
+* Random access in O(log N)
+
+Issues:
+* Binary numbers have cascading effects (a carry or borrow propagate)
+* Inefficiency by keeping track of the size at each node
+-}
+
+-- TODO: Based on it, provide a vector like data structure (with push back)
+-- TODO: eliminate redundancy in 'at' and 'tree lookups'
+
+
 -- ^ A complete binary tree
 
 data Tree a
-  = Leaf { leafVal :: a }
-  | Node {
-    nodeSize :: Int,
-    lhs, rhs :: Tree a }
+  = Leaf { leafVal  :: a }
+  | Node { nodeSize :: Int,
+           lhs, rhs :: Tree a }
   deriving (Show, Eq, Ord)
 
 treeSize :: Tree a -> Int
@@ -36,7 +52,7 @@ instance Foldable Tree where
   foldr fct prev Node{..} = foldr fct (foldr fct prev rhs) lhs
 
 
--- ^ Binary counter on trees, with two for efficiency
+-- ^ Binary counter on trees, with two added for efficiency
 
 data DigitTree a
   = Zero
@@ -60,13 +76,7 @@ instance Foldable DigitTree where
   foldr fct prev (Two f s) = foldr fct (foldr fct prev s) f
 
 
--- | The index list implementation
---
--- TODO: Based on this implementation:
--- * Provide a vector like data structure (with push back)
--- * Find a way to efficiently merge the lists
--- * Make it traversable
--- TODO: eliminate redundancy in 'at' and 'tree lookups'
+-- ^ The index list implementation
 
 type Digits a = [DigitTree a]
 
