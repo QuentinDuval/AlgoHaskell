@@ -15,6 +15,7 @@ library
         Graph.DFS
         List.ArrayList
         List.IndexList
+        List.IndexListClass
         List.SkewIndexList
         Puzzles.Fibonacci
         Queue.Class

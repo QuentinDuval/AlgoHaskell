@@ -1,14 +1,10 @@
 {-# LANGUAGE RecordWildCards #-}
 module List.SkewIndexList (
   IndexedList,
-  empty,
-  fromList,
-  pushFront,
-  getTail,
-  getHead,
-  at,
-  updateAt,
+  module Class,
 ) where
+
+import List.IndexListClass as Class
 
 
 {-
@@ -48,26 +44,13 @@ newtype IndexedList a = IndexedList {
 
 -- | Public
 
-empty :: IndexedList a
-empty = IndexedList []
-
-fromList :: [a] -> IndexedList a
-fromList = foldr pushFront empty
-
-pushFront :: a -> IndexedList a -> IndexedList a
-pushFront a = IndexedList . pushVal a . digits
-
-getTail :: IndexedList a -> IndexedList a
-getTail = IndexedList . popVal . digits
-
-getHead :: IndexedList a -> a
-getHead = topVal . digits
-
-at :: IndexedList a -> Int -> a
-at = lookupList . digits
-
-updateAt :: (a -> a) -> IndexedList a -> Int -> IndexedList a
-updateAt f l = IndexedList . updateList f (digits l)
+instance IIndexList IndexedList where
+  empty         = IndexedList []
+  pushFront a   = IndexedList . pushVal a . digits
+  getTail       = IndexedList . popVal . digits
+  getHead       = topVal . digits
+  at            = lookupList . digits
+  updateAt f l  = IndexedList . updateList f (digits l)
 
 
 -- | Useful instances

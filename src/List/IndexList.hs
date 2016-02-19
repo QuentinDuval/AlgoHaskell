@@ -1,14 +1,10 @@
 {-# LANGUAGE RecordWildCards #-}
 module List.IndexList (
   IndexedList,
-  empty,
-  fromList,
-  pushFront,
-  getTail,
-  getHead,
-  at,
-  updateAt,
+  module Class,
 ) where
+
+import List.IndexListClass as Class
 
 
 {-
@@ -90,29 +86,13 @@ newtype IndexedList a = IndexedList {
 
 -- | Public
 
-empty :: IndexedList a
-empty = IndexedList []
-
-fromList :: [a] -> IndexedList a
-fromList = foldr pushFront empty
-
-pushFront :: a -> IndexedList a -> IndexedList a
-pushFront a = IndexedList . pushTree (Leaf a) . digits
-
-getTail :: IndexedList a -> IndexedList a
-getTail = IndexedList . snd . popTree . digits
-
-getHead :: IndexedList a -> a
-getHead = leafVal . fst . popTree . digits
-
-at :: IndexedList a -> Int -> a
-at = lookupList . digits
-
-updateAt :: (a -> a) -> IndexedList a -> Int -> IndexedList a
-updateAt f l = IndexedList . updateList f (digits l)
-
-
--- | Useful instances
+instance IIndexList IndexedList where
+  empty         = IndexedList []
+  pushFront a   = IndexedList . pushTree (Leaf a) . digits
+  getTail       = IndexedList . snd . popTree . digits
+  getHead       = leafVal . fst . popTree . digits
+  at            = lookupList . digits
+  updateAt f l  = IndexedList . updateList f (digits l)
 
 instance Functor IndexedList where
   fmap fct = IndexedList . fmap (fmap fct) . digits
