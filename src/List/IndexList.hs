@@ -22,6 +22,7 @@ Complexity:
 Issues:
 * Binary numbers have cascading effects (a carry or borrow propagate)
 * Inefficiency by keeping track of the size at each node
+* Inefficiency by keeping track of the zeros (useless as we have the sizes)
 -}
 
 -- TODO: Based on it, provide a vector like data structure (with push back)
