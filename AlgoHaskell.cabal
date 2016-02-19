@@ -32,6 +32,7 @@ library
         RMQ.RangeQuery
         Tree
         Tree.BinaryTree
+        Tree.NaturalTree
         Tree.RoseTree
         Utils.FormatString
         Utils.List

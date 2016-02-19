@@ -2,6 +2,7 @@ module Puzzles.Memoization where
 
 import Data.Function (fix)
 import Data.IntTrie
+import qualified Tree.NaturalTree as Nat
 
 
 {-
@@ -35,15 +36,21 @@ memoList :: Int -> Integer
 memoList n = memoized n
   where
     memoized  = fun' (memoTable !!)
-    memoTable = fmap memoized [0..n]
+    memoTable = fmap memoized [0..]
 
 
 -- | Memoization via an infinite int-trie
 -- Good lazyness and log N random access
 -- If you remove the argument of memoList, memoization stays between function calls
 
-memoTree :: Int -> Integer
-memoTree n = memoized n
+memoTrie :: Int -> Integer
+memoTrie n = memoized n
   where
     memoized  = fun' (memoTable `apply`)
     memoTable = fmap memoized identity
+
+memoTree :: Int -> Integer
+memoTree n = memoized n
+  where
+    memoized  = fun' (memoTable `Nat.at`)
+    memoTable = fmap memoized Nat.indices
