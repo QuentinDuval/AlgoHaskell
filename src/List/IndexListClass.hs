@@ -1,7 +1,7 @@
 module List.IndexListClass where
 
 
-class IIndexList iList where
+class (Functor iList, Foldable iList) => IIndexList iList where
   empty     :: iList a
   pushFront :: a -> iList a -> iList a
   getTail   :: iList a -> iList a
