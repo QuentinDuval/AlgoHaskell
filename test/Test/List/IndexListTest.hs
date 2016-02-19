@@ -33,7 +33,6 @@ pushPopTest create =
     assertEqual "Old Head" 0 $ getHead l1
     assertEqual "New Head" 2 $ getHead l2
 
-
 foldableTest :: (IIndexList l) => Constructor l -> Test
 foldableTest create =
   let l = create [0 .. 100]

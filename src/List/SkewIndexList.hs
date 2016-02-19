@@ -87,39 +87,37 @@ linkNodes v d1 d2 = DigitTree {
 
 -- | Private (indexation)
 
-indexError = error "Error: index out of bound"
+indexError i = error ("Error: index out of bound: " ++ show i)
 
 lookupList :: Digits a -> Int -> a
-lookupList [] _ = indexError
+lookupList [] i = indexError i
 lookupList (d:ds) i
   | i >= dSize           = lookupList ds (i - dSize)
   | otherwise            = lookupNode dSize (digitTree d) i
   where dSize = digitSize d
 
 lookupNode :: TreeSize -> Tree a -> Int -> a
-lookupNode _ Leaf{..}   _ = nodeVal
+lookupNode 1 Leaf{..}   0 = nodeVal
 lookupNode s n@Node{..} i
-  | i == lSize = nodeVal
-  | i <  lSize = lookupNode lSize lhs i
-  | otherwise  = lookupNode rSize lhs i
+  | i == 0     = nodeVal
+  | i <= lSize = lookupNode lSize lhs (i - 1)
+  | otherwise  = lookupNode lSize rhs (i - lSize - 1)
   where lSize = div s 2
-        rSize = s - lSize - 1
 
 updateList :: (a -> a) -> Digits a -> Int -> Digits a
-updateList _ [] _ = indexError
+updateList _ [] i = indexError i
 updateList f (d:ds) i
   | i >= dSize = d : updateList f ds (i - dSize)
   | otherwise  = d { digitTree = updateNode f dSize (digitTree d) i } : ds
   where dSize = digitSize d
 
 updateNode :: (a -> a) -> TreeSize -> Tree a -> Int -> Tree a
-updateNode f _ Leaf{..}   _ = Leaf (f nodeVal)
+updateNode f 1 Leaf{..}   0 = Leaf (f nodeVal)
 updateNode f s n@Node{..} i
-  | i == lSize = n { nodeVal = f nodeVal }
-  | i <  lSize = n { lhs = updateNode f lSize lhs i }
-  | otherwise  = n { rhs = updateNode f rSize lhs i }
+  | i == 0     = n { nodeVal = f nodeVal }
+  | i <= lSize = n { lhs = updateNode f lSize lhs (i - 1) }
+  | otherwise  = n { rhs = updateNode f lSize rhs (i - lSize - 1) }
   where lSize = div s 2
-        rSize = s - lSize - 1
 
 
 -- | Private (list operations)

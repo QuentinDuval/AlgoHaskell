@@ -105,10 +105,10 @@ instance Foldable IndexedList where
 
 -- | Private (indexation)
 
-indexError = error "Error: index out of bound"
+indexError i = error ("Error: index out of bound: " ++ show i)
 
 lookupList :: Digits a -> Int -> a
-lookupList [] _ = indexError
+lookupList [] i = indexError i
 lookupList (d:ds) i
   | i >= dSize           = lookupList ds (i - dSize)
   | i < treeSize (one d) = lookupNode (one d) i
@@ -123,7 +123,7 @@ lookupNode Node{..} i
   where lSize = treeSize lhs
 
 updateList :: (a -> a) -> Digits a -> Int -> Digits a
-updateList _ [] _ = indexError
+updateList _ [] i = indexError i
 updateList f (d:ds) i
   | i >= dSize           = d : updateList f ds (i - dSize)
   | i < treeSize (one d) = d { one = updateNode f (one d) i } : ds
