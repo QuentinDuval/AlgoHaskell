@@ -1,8 +1,29 @@
+{-# LANGUAGE RecordWildCards #-}
 module List.SkewIndexList (
   IndexedList,
+  empty,
+  fromList,
+  pushFront,
+  getTail,
+  getHead,
+  at,
+  updateAt,
 ) where
 
 
+{-
+Skew binary number implementation of random access list (based on Okasaki's book)
+Based on skew binary numbers: (2^(i+1)) - 1
+
+Complexity:
+* List operations in O(1)
+* Length retrieval in O(log N)
+* Random access in O(log N)
+* Traversal in O(N)
+-}
+
+-- TODO: Based on it, provide a vector like data structure (with push back)
+-- TODO: eliminate redundancy in 'at' and 'tree lookups'
 
 
 -- ^ Skew tree (containing 2^i - 1 elements)
@@ -13,11 +34,22 @@ data Tree a
            lhs, rhs :: Tree a }
   deriving (Show, Eq, Ord)
 
+type TreeSize = Int
+
 data DigitTree a
   = DigitTree {
-    digitSize :: Int,
+    digitSize :: TreeSize,
     digitTree :: Tree a }
   deriving (Show, Eq, Ord)
+
+leaf :: a -> DigitTree a
+leaf = DigitTree 1 . Leaf
+
+linkNodes :: a -> DigitTree a -> DigitTree a -> DigitTree a
+linkNodes v d1 d2 = DigitTree {
+    digitSize = 1 + digitSize d1 + digitSize d2,
+    digitTree = Node v (digitTree d1) (digitTree d2)
+  }
 
 
 -- ^ The index list representation
@@ -38,13 +70,13 @@ fromList :: [a] -> IndexedList a
 fromList = foldr pushFront empty
 
 pushFront :: a -> IndexedList a -> IndexedList a
-pushFront a = IndexedList . pushTree (Leaf a) . digits
+pushFront a = IndexedList . pushVal a . digits
 
-popFront :: IndexedList a -> IndexedList a
-popFront = IndexedList . snd . popTree . digits
+getTail :: IndexedList a -> IndexedList a
+getTail = IndexedList . popVal . digits
 
-getFirst :: IndexedList a -> a
-getFirst = undefined -- leafVal . fst . popTree . digits
+getHead :: IndexedList a -> a
+getHead = topVal . digits
 
 at :: IndexedList a -> Int -> a
 at = lookupList . digits
@@ -72,47 +104,50 @@ lookupList :: Digits a -> Int -> a
 lookupList [] _ = indexError
 lookupList (d:ds) i
   | i >= dSize           = lookupList ds (i - dSize)
-  | otherwise            = lookupNode (digitTree d) i
+  | otherwise            = lookupNode dSize (digitTree d) i
   where dSize = digitSize d
 
-lookupNode :: Tree a -> Int -> a
-lookupNode = undefined
--- lookupNode Leaf{..} _ = leafVal
--- lookupNode Node{..} i
---   | i < lSize = lookupNode lhs i
---   | otherwise = lookupNode rhs (i - lSize)
---   where lSize = treeSize lhs
+lookupNode :: TreeSize -> Tree a -> Int -> a
+lookupNode _ Leaf{..}   _ = nodeVal
+lookupNode s n@Node{..} i
+  | i == lSize = nodeVal
+  | i <  lSize = lookupNode lSize lhs i
+  | otherwise  = lookupNode rSize lhs i
+  where lSize = div s 2
+        rSize = s - lSize - 1
 
 updateList :: (a -> a) -> Digits a -> Int -> Digits a
 updateList _ [] _ = indexError
 updateList f (d:ds) i
   | i >= dSize = d : updateList f ds (i - dSize)
-  | otherwise  = d { digitTree = updateNode f (digitTree d) i } : ds
+  | otherwise  = d { digitTree = updateNode f dSize (digitTree d) i } : ds
   where dSize = digitSize d
 
-updateNode :: (a -> a) -> Tree a -> Int -> Tree a
-updateNode = undefined
--- updateNode f Leaf{..}   _ = Leaf (f leafVal)
--- updateNode f n@Node{..} i
---   | i < lSize = n { lhs = updateNode f lhs i }
---   | otherwise = n { rhs = updateNode f rhs (i - lSize) }
---   where lSize = treeSize lhs
+updateNode :: (a -> a) -> TreeSize -> Tree a -> Int -> Tree a
+updateNode f _ Leaf{..}   _ = Leaf (f nodeVal)
+updateNode f s n@Node{..} i
+  | i == lSize = n { nodeVal = f nodeVal }
+  | i <  lSize = n { lhs = updateNode f lSize lhs i }
+  | otherwise  = n { rhs = updateNode f rSize lhs i }
+  where lSize = div s 2
+        rSize = s - lSize - 1
 
 
 -- | Private (list operations)
 
-pushTree :: Tree a -> Digits a -> Digits a
-pushTree = undefined
--- pushTree t []             = [One t]
--- pushTree t (Zero : ts)    = One t : ts
--- pushTree t (One f : ts)   = Two t f : ts
--- pushTree t (Two f s : ts) = One t : pushTree (linkNodes f s) ts
+pushVal :: a -> Digits a -> Digits a
+pushVal v []  = [leaf v]
+pushVal v [d] = [leaf v, d]
+pushVal v ds@(d1:d2:rest)
+  | digitSize d1 == digitSize d2  = linkNodes v d1 d2 : rest
+  | otherwise                     = leaf v : ds
 
-popTree :: Digits a -> (Tree a, Digits a)
-popTree = undefined
--- popTree [] = error "Error (popTree): list is empty"
--- popTree [One f]           = (f, [])
--- popTree (One f : ts)      = (f, Zero : ts)
--- popTree (Two f s : ts)    = (f, One s : ts)
--- popTree (Zero : ts)       = (l, One r : ts')
---   where (Node _ l r, ts') = popTree ts
+topVal :: Digits a -> a
+topVal []     = error "Error (topVal): list is empty"
+topVal (d:_)  = nodeVal (digitTree d)
+
+popVal :: Digits a -> Digits a
+popVal []                   = error "Error (popVal): list is empty"
+popVal (DigitTree 1 _ : ds) = ds
+popVal (DigitTree s t : ds) = DigitTree s' (lhs t) : DigitTree s' (rhs t) : ds
+  where s' = div s 2

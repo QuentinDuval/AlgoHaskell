@@ -6,6 +6,7 @@ import Data.Foldable
 import List.IndexList
 import Test.HUnit
 
+
 -- | All tests
 
 runIndexListTests :: Test
@@ -18,10 +19,10 @@ runIndexListTests = TestList
 pushPopTest :: Test
 pushPopTest =
   let l1 = fromList [0 .. 100 :: Int]
-      l2 = popFront $ popFront l1
+      l2 = getTail $ getTail l1
   in TestCase $ do
-    assertEqual "Old Head" 0 $ getFirst l1
-    assertEqual "New Head" 2 $ getFirst l2
+    assertEqual "Old Head" 0 $ getHead l1
+    assertEqual "New Head" 2 $ getHead l2
 
 
 foldableTest :: Test

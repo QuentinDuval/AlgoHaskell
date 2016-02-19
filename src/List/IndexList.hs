@@ -4,8 +4,8 @@ module List.IndexList (
   empty,
   fromList,
   pushFront,
-  popFront,
-  getFirst,
+  getTail,
+  getHead,
   at,
   updateAt,
 ) where
@@ -99,11 +99,11 @@ fromList = foldr pushFront empty
 pushFront :: a -> IndexedList a -> IndexedList a
 pushFront a = IndexedList . pushTree (Leaf a) . digits
 
-popFront :: IndexedList a -> IndexedList a
-popFront = IndexedList . snd . popTree . digits
+getTail :: IndexedList a -> IndexedList a
+getTail = IndexedList . snd . popTree . digits
 
-getFirst :: IndexedList a -> a
-getFirst = leafVal . fst . popTree . digits
+getHead :: IndexedList a -> a
+getHead = leafVal . fst . popTree . digits
 
 at :: IndexedList a -> Int -> a
 at = lookupList . digits
