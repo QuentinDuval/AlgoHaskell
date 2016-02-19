@@ -17,6 +17,7 @@ library
         List.IndexList
         List.IndexListClass
         List.SkewIndexList
+        Puzzles.Calendar
         Puzzles.Fibonacci
         Queue.Class
         Queue.DataSeq
@@ -30,13 +31,18 @@ library
         Tree
         Tree.BinaryTree
         Tree.RoseTree
+        Utils.FormatString
+        Utils.List
         Utils.Monoids
+        Utils.Time
 
     build-depends:
         HUnit -any,
         QuickCheck -any,
         base -any,
         criterion -any,
+        split -any,
+        time -any,
         vector -any,
         containers >=0.5.6.2 && <0.6,
         mtl >=2.2.1 && <2.3,
