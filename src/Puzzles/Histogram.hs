@@ -6,6 +6,11 @@ import qualified Data.Map as M
 import Utils.FormatString
 
 
+{-
+Exercise taken from the course CIS-194:
+http://www.seas.upenn.edu/~cis194/spring13/hw/03-rec-poly.pdf
+-}
+
 -- | Displaying an histogram
 
 horizontalBars :: [Int] -> [String]
