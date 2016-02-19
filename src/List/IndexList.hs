@@ -17,7 +17,9 @@ Based on traditional binary numbers: 2 ^ i
 
 Complexity:
 * List operations in O(log N)
+* Length retrieval in O(log N)
 * Random access in O(log N)
+* Traversal in O(N)
 
 Issues:
 * Binary numbers have cascading effects (a carry or borrow propagate)
