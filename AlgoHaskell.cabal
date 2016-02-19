@@ -19,6 +19,7 @@ library
         List.SkewIndexList
         Puzzles.Calendar
         Puzzles.Fibonacci
+        Puzzles.Histogram
         Queue.Class
         Queue.DataSeq
         Queue.Persistent
