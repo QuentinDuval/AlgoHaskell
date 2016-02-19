@@ -35,6 +35,7 @@ library
         Utils.FormatString
         Utils.List
         Utils.Monoids
+        Utils.Ordering
         Utils.Time
 
     build-depends:
