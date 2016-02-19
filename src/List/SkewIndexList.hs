@@ -25,9 +25,6 @@ Complexity:
 -- TODO: Based on it, provide a vector like data structure (with push back)
 -- TODO: eliminate redundancy in 'at' and 'tree lookups'
 
-
--- ^ Skew tree (containing 2^i - 1 elements)
-
 data Tree a
   = Leaf { nodeVal  :: a }
   | Node { nodeVal  :: a,
@@ -41,18 +38,6 @@ data DigitTree a
     digitSize :: TreeSize,
     digitTree :: Tree a }
   deriving (Show, Eq, Ord)
-
-leaf :: a -> DigitTree a
-leaf = DigitTree 1 . Leaf
-
-linkNodes :: a -> DigitTree a -> DigitTree a -> DigitTree a
-linkNodes v d1 d2 = DigitTree {
-    digitSize = 1 + digitSize d1 + digitSize d2,
-    digitTree = Node v (digitTree d1) (digitTree d2)
-  }
-
-
--- ^ The index list representation
 
 type Digits a = [DigitTree a]
 
@@ -87,13 +72,34 @@ updateAt f l = IndexedList . updateList f (digits l)
 
 -- | Useful instances
 
+instance Functor Tree where
+  fmap fct Leaf{..} = Leaf (fct nodeVal)
+  fmap fct Node{..} = Node (fct nodeVal) (fmap fct lhs) (fmap fct rhs)
+
 instance Functor IndexedList where
-  fmap fct = undefined -- IndexedList . fmap (fmap fct) . digits
+  fmap fct = IndexedList . fmap mapDigit . digits
+    where mapDigit d@(DigitTree _ t) = d { digitTree = fmap fct t }
+
+instance Foldable Tree where
+  foldr fct prev Leaf{..} = fct nodeVal prev
+  foldr fct prev Node{..} = fct nodeVal (foldr fct (foldr fct prev rhs) lhs)
 
 instance Foldable IndexedList where
   length = sum . fmap digitSize . digits
-  foldr fct prev l = undefined --foldr foldDigits prev (digits l)
-    --where foldDigits = flip (foldr fct)
+  foldr fct prev l = foldr foldDigits prev (digits l)
+    where foldDigits d prev = foldr fct prev (digitTree d)
+
+
+-- | Private (utils)
+
+leaf :: a -> DigitTree a
+leaf = DigitTree 1 . Leaf
+
+linkNodes :: a -> DigitTree a -> DigitTree a -> DigitTree a
+linkNodes v d1 d2 = DigitTree {
+    digitSize = 1 + digitSize d1 + digitSize d2,
+    digitTree = Node v (digitTree d1) (digitTree d2)
+  }
 
 
 -- | Private (indexation)
