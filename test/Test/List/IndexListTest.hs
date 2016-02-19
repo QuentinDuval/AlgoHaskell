@@ -19,12 +19,12 @@ runIndexListTests = TestList [
       TestList $ [ pushPopTest, foldableTest, indexAccessTest, indexUpdateTest ] <*> [ Skew.fromList ]
   ]
 
-type Constructor l = ([Int] -> l Int)
+type Constructor l a = ([a] -> l Int)
 
 
 -- | Test cases
 
-pushPopTest :: (IIndexList l) => Constructor l -> Test
+pushPopTest :: (IIndexList l) => Constructor l Int -> Test
 pushPopTest create =
   let l1 = create [0 .. 100]
       l2 = getTail $ getTail l1
@@ -32,7 +32,7 @@ pushPopTest create =
     assertEqual "Old Head" 0 $ getHead l1
     assertEqual "New Head" 2 $ getHead l2
 
-foldableTest :: (IIndexList l) => Constructor l -> Test
+foldableTest :: (IIndexList l) => Constructor l Int -> Test
 foldableTest create =
   let l = create [0 .. 100]
   in TestCase $ do
@@ -41,7 +41,7 @@ foldableTest create =
     assertEqual "Functor" [1..101] $ toList (fmap (+1) l)
     assertEqual "Sum all" 5050     $ sum l
 
-indexAccessTest :: (IIndexList l) => Constructor l -> Test
+indexAccessTest :: (IIndexList l) => Constructor l Int -> Test
 indexAccessTest create =
   let l = create [0 .. 100]
   in TestCase $ do
@@ -49,7 +49,7 @@ indexAccessTest create =
       assertEqual "Element at" 50  $ l `at` 50
       assertEqual "Element at" 100 $ l `at` 100
 
-indexUpdateTest :: (IIndexList l) => Constructor l -> Test
+indexUpdateTest :: (IIndexList l) => Constructor l Int -> Test
 indexUpdateTest create =
   let temp = create [0 .. 100]
       l = foldl (updateAt (+ 1)) temp [0, 50, 100]
