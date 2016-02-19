@@ -51,7 +51,7 @@ yearRange y = [fromGregorian y 1 1 .. fromGregorian y 12 31]    -- ^ Day impleme
 
 calendar :: [Day] -> [String]
 calendar =
-  groupByMonth                -- list (year) of list (month) of days
+  groupByMonth              -- list (year) of list (month) of days
     >>> fmap groupByWeek    -- list (year) of list (month) of list (week) of days
     >>> fmap formatMonth    -- list (year) of list (month) of week repr
     >>> chunksOf 3          -- group month by 3     => list (year) of list (chunk) of list (month) of week repr
