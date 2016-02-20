@@ -207,7 +207,6 @@ knapsack items subProblem startIndex remSize
     withoutItem   = suffixProblem remSize
     withItem      = suffixProblem (remSize - size)
 
-
 naiveKnapsack :: V.Vector Item -> Int -> Int
 naiveKnapsack items = subProblem 0
   where subProblem = knapsack items subProblem -- ^ Equivalent of "fix"
@@ -218,10 +217,3 @@ memoKnapsack items totalSize = memoTable & V.last & V.head -- ^ "&" is "flip ($)
     itemCount = V.length items
     memoized  = knapsack items (\start size -> memoTable V.! size V.! start)
     memoTable = V.generate (succ totalSize) (V.generate (succ itemCount) . flip memoized)
-
-testKnapsack :: IO ()
-testKnapsack = do
-  print $ naiveKnapsack (V.fromList [(1, 1), (2, 3), (5, 5)]) 1
-  print $ naiveKnapsack (V.fromList [(1, 1), (2, 3), (5, 5)]) 2
-  print $ memoKnapsack (V.fromList [(1, 1), (2, 3), (5, 5)]) 1
-  print $ memoKnapsack (V.fromList [(1, 1), (2, 3), (5, 5)]) 2
