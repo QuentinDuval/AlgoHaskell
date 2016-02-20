@@ -7,8 +7,8 @@ import Control.Monad.State
 import Data.Function (fix)
 import Data.Function.Memoize
 import qualified Data.IntMap as IM
-import qualified Data.IntTrie as T
 import qualified Data.Map as OM
+import qualified Data.Vector as V
 import qualified Tree.NaturalTree as Nat
 
 
@@ -39,34 +39,37 @@ fun' f n
 
 -- | Memoization via an infinite list
 -- Good lazyness but bad random access
--- If you remove the argument of memoList, memoization stays between function calls
 
 memoList :: Int -> Integer
-memoList n = memoized n
+memoList n = memoized n   -- ^ Remove n and it stays between function calls
   where
     memoized  = fun' (memoTable !!)
     memoTable = fmap memoized [0..]
 
 
--- | Memoization via an infinite trees
--- Good lazyness and log N random access
--- If you remove the argument of memoList, memoization stays between function calls
+-- | Memoization via a finite vector
+-- No lazyness but O(1) random access
 
-memoTrie :: Int -> Integer
-memoTrie n = memoized n
+memoVector :: Int -> Integer
+memoVector n = memoized n
   where
-    memoized  = fun' (memoTable `T.apply`)
-    memoTable = fmap memoized T.identity
+    memoized  = fun' ((V.!) memoTable)
+    memoTable = V.generate n memoized
+
+
+-- | Memoization via an infinite tree
+-- Good lazyness and log N random access
 
 memoTree :: Int -> Integer
-memoTree n = memoized n
+memoTree n = memoized n   -- ^ Remove n and it stays between function calls
   where
     memoized  = fun' (memoTable `Nat.at`)
     memoTable = fmap memoized Nat.indices
 
 
 -- | Memoization using traditional methods
--- Controled side-effects and associative containers
+-- * Via side-effects and storage in associative containers
+-- * Can be done generatically (example shown below)
 
 funM :: (Monad m) => (Int -> m Integer) -> Int -> m Integer
 funM f n
@@ -88,9 +91,7 @@ memoMonad n = memoized n `evalState` IM.empty
           modify (IM.insert n res)
           return res
 
-
--- | Generalization of memoization
--- First Attempt: using a state monad to keep track of results
+-- Generalized version
 
 type OpenRecursion m a b = (a -> m b) -> a -> m b
 
