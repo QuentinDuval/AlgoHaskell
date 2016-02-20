@@ -166,9 +166,3 @@ memoCutRod2 values = runST $ do
       return $ (V.!) values (k-1) + subProblem
     UV.write memoTable l (maximum values)
   UV.read memoTable (rodLength - 1)
-
-testCutRod :: Int -> IO ()
-testCutRod n = do
-  let uniform = V.replicate n 1
-  print $ memoCutRod  uniform
-  print $ memoCutRod2 uniform
