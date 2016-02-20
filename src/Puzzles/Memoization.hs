@@ -158,11 +158,11 @@ memoCutRod values = V.last memoTable
 
 memoCutRod2 :: V.Vector Int -> Int
 memoCutRod2 values = runST $ do
-  let rodLength = V.length values + 1
-  memoTable <- UV.replicate rodLength 0
-  forM_ [1 .. rodLength - 1] $ \l -> do
+  let len = V.length values
+  memoTable <- UV.replicate (len + 1) 0
+  forM_ [1 .. len] $ \l -> do
     values <- forM [1..l] $ \k -> do
       subProblem <- UV.read memoTable (l-k)
       return $ (V.!) values (k-1) + subProblem
     UV.write memoTable l (maximum values)
-  UV.read memoTable (rodLength - 1)
+  UV.read memoTable len
