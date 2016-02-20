@@ -6,7 +6,7 @@ module Puzzles.Memoization where
 import Control.Arrow
 import Control.Monad.ST
 import Control.Monad.State
-import Data.Function (fix)
+import Data.Function (fix, (&))
 import Data.Function.Memoize
 import Data.Hashable
 import qualified Data.HashMap.Lazy as LazyHM
@@ -213,7 +213,7 @@ naiveKnapsack items = subProblem 0
   where subProblem = knapsack items subProblem -- ^ Equivalent of "fix"
 
 memoKnapsack :: V.Vector Item -> Int -> Int
-memoKnapsack items totalSize = V.head (V.last memoTable)
+memoKnapsack items totalSize = memoTable & V.last & V.head -- ^ "&" is "flip ($)"
   where
     itemCount = V.length items
     memoized  = knapsack items (\start size -> memoTable V.! size V.! start)
