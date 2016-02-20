@@ -16,6 +16,11 @@ import qualified Data.Vector.Unboxed.Mutable as UV
 import qualified Tree.NaturalTree as Nat
 
 
+-- TODO - Try lazy structure to help:
+-- * Try to use skew index List
+-- * Try Data.Vector.Persistent
+
+
 {-
 -- Memoization in Haskell:
 -- * Inspired by http://stackoverflow.com/questions/3208258/memoization-in-haskell
@@ -131,16 +136,23 @@ memoMonad = genericMemoMonad funM
 -- * O(log A) for function with one argument of cardinality A
 -- * O(log A + log B) for functions with two arguments of cardinality A and B
 -- * With uncurry, the loopup is done by pair: O(log (A * B)) = O(log A + log B)
+--
+-- This is best used when:
+-- * We need all the chached information to be maintained, which is not always
+--   the case (example of Fibonacci and Bellman-Ford)
+-- * We do not know of any trivial topological sort that would allow us to
+--   adopt a bottum-up approach
 
 memoModule :: Int -> Integer
 memoModule = memoFix fun'
 
 
--- | Example of memoization where lazyness is not needed
---
+{-
+-- Example of memoization where lazyness is not needed.
 -- Problem of "Cut Rod":
 -- * You have a rod of lenght L and list of value for a rod of length K
 -- * Find the best cuts you can make, that maximize the value
+-}
 
 cutRod :: V.Vector Int -> (Int -> Int) -> Int -> Int
 cutRod values subProblem l
@@ -166,3 +178,50 @@ memoCutRod2 values = runST $ do
       return $ (V.!) values (k-1) + subProblem
     UV.write memoTable l (maximum values)
   UV.read memoTable len
+
+
+{-
+-- Example of memoization where we need intermediary variables.
+-- Problem of "0-1 Knapsack":
+-- * A bunch of items, each with a value and a size (integer)
+-- * A knapsack of bounded size (integer)
+-- * The goal is to find the maximize the possible value
+--
+-- Solution:
+-- * Start from the first item, and decide whether you include it or not
+-- * We need memoization, but we need to solve subproblems with different S
+-- * It would be bad to use the list of items as memo-key, the start index is enough
+-}
+
+type Item = (Int, Int)
+
+knapsack :: V.Vector Item -> (Int -> Int -> Int) -> Int -> Int -> Int
+knapsack items subProblem startIndex remSize
+  | startIndex >= V.length items = 0
+  | size < remSize  = max withoutItem (withItem + value)
+  | size == remSize = max withoutItem value
+  | otherwise       = withoutItem
+  where
+    (size, value) = (V.!) items startIndex
+    suffixProblem = subProblem (succ startIndex)
+    withoutItem   = suffixProblem remSize
+    withItem      = suffixProblem (remSize - size)
+
+
+naiveKnapsack :: V.Vector Item -> Int -> Int
+naiveKnapsack items = subProblem 0
+  where subProblem = knapsack items subProblem -- ^ Equivalent of "fix"
+
+memoKnapsack :: V.Vector Item -> Int -> Int
+memoKnapsack items totalSize = V.head (V.last memoTable)
+  where
+    itemCount = V.length items
+    memoized  = knapsack items (\start size -> memoTable V.! size V.! start)
+    memoTable = V.generate (succ totalSize) (V.generate (succ itemCount) . flip memoized)
+
+testKnapsack :: IO ()
+testKnapsack = do
+  print $ naiveKnapsack (V.fromList [(1, 1), (2, 3), (5, 5)]) 1
+  print $ naiveKnapsack (V.fromList [(1, 1), (2, 3), (5, 5)]) 2
+  print $ memoKnapsack (V.fromList [(1, 1), (2, 3), (5, 5)]) 1
+  print $ memoKnapsack (V.fromList [(1, 1), (2, 3), (5, 5)]) 2
