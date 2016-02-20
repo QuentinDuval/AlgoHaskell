@@ -4,6 +4,7 @@
 module Puzzles.Memoization where
 
 import Control.Arrow
+import Control.Monad.ST
 import Control.Monad.State
 import Data.Function (fix)
 import Data.Function.Memoize
@@ -11,6 +12,7 @@ import Data.Hashable
 import qualified Data.HashMap.Lazy as LazyHM
 import qualified Data.HashMap.Strict as HM
 import qualified Data.Vector as V
+import qualified Data.Vector.Unboxed.Mutable as UV
 import qualified Tree.NaturalTree as Nat
 
 
@@ -130,5 +132,43 @@ memoMonad = genericMemoMonad funM
 -- * O(log A + log B) for functions with two arguments of cardinality A and B
 -- * With uncurry, the loopup is done by pair: O(log (A * B)) = O(log A + log B)
 
-testMemoizeMod :: Int -> IO ()
-testMemoizeMod = print . memoFix fun'
+memoModule :: Int -> Integer
+memoModule = memoFix fun'
+
+
+-- | Example of memoization where lazyness is not needed
+--
+-- Problem of "Cut Rod":
+-- * You have a rod of lenght L and list of value for a rod of length K
+-- * Find the best cuts you can make, that maximize the value
+
+cutRod :: V.Vector Int -> (Int -> Int) -> Int -> Int
+cutRod values subProblem l
+  | l == 0    = 0
+  | otherwise = maximum [ (V.!) values (k-1) + subProblem (l-k) | k <- [1..l] ]
+
+naiveCutRod :: V.Vector Int -> Int
+naiveCutRod values = fix (cutRod values) (V.length values)
+
+memoCutRod :: V.Vector Int -> Int
+memoCutRod values = V.last memoTable
+  where
+    memoized  = cutRod values ((V.!) memoTable)
+    memoTable = V.generate (V.length values + 1) memoized
+
+memoCutRod2 :: V.Vector Int -> Int
+memoCutRod2 values = runST $ do
+  let rodLength = V.length values + 1
+  memoTable <- UV.replicate rodLength 0
+  forM_ [1 .. rodLength - 1] $ \l -> do
+    values <- forM [1..l] $ \k -> do
+      subProblem <- UV.read memoTable (l-k)
+      return $ (V.!) values (k-1) + subProblem
+    UV.write memoTable l (maximum values)
+  UV.read memoTable (rodLength - 1)
+
+testCutRod :: Int -> IO ()
+testCutRod n = do
+  let uniform = V.replicate n 1
+  print $ memoCutRod  uniform
+  print $ memoCutRod2 uniform

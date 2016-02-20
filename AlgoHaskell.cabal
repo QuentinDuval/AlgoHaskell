@@ -45,6 +45,7 @@ library
         QuickCheck -any,
         base -any,
         criterion -any,
+        deepseq -any,
         split -any,
         time -any,
         vector -any,
