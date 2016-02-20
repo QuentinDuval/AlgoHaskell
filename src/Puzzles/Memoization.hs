@@ -1,9 +1,13 @@
+
+{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE RankNTypes #-}
 module Puzzles.Memoization where
 
 import Control.Monad.State
 import Data.Function (fix)
-import qualified Data.IntMap as M
+import qualified Data.IntMap as IM
 import qualified Data.IntTrie as T
+import qualified Data.Map as OM
 import qualified Tree.NaturalTree as Nat
 
 
@@ -69,14 +73,34 @@ funM f n
       return $ max (fromIntegral n) (sum subVals)
 
 memoMonad :: Int -> Integer
-memoMonad n = memoized n `evalState` M.empty
+memoMonad n = memoized n `evalState` IM.empty
   where
-    memoized :: Int -> State (M.IntMap Integer) Integer
+    memoized :: Int -> State (IM.IntMap Integer) Integer
     memoized n = do
-      cached <- M.lookup n <$> get
+      cached <- IM.lookup n <$> get
       case cached of
         Just res -> return res
         Nothing  -> do
           res <- funM memoized n
-          modify (M.insert n res)
+          modify (IM.insert n res)
           return res
+
+
+-- | Generalization of memoization
+
+type OpenRecursion m a b = (a -> m b) -> a -> m b
+
+memoRecur :: (Ord a) => (forall m. Monad m => OpenRecursion m a b) -> a -> b
+memoRecur f n = memoized n `evalState` OM.empty
+  where
+    memoized n = do
+      cached <- OM.lookup n <$> get
+      case cached of
+        Just res -> return res
+        Nothing  -> do
+          res <- f memoized n
+          modify (OM.insert n res)
+          return res
+
+testMemoRecur :: Int -> IO ()
+testMemoRecur = print . memoRecur funM
