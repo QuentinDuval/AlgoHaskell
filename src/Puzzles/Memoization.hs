@@ -13,8 +13,10 @@ import qualified Tree.NaturalTree as Nat
 
 
 {-
-Memoization in Haskell:
-http://stackoverflow.com/questions/3208258/memoization-in-haskell
+-- Memoization in Haskell:
+-- * Inspired by http://stackoverflow.com/questions/3208258/memoization-in-haskell
+-- * Different solution to the given specific problem
+-- * Different attempts at generalizing the memoization pattern
 -}
 
 
@@ -88,7 +90,7 @@ memoMonad n = memoized n `evalState` IM.empty
 
 
 -- | Generalization of memoization
--- Attempt at doing it manually
+-- First Attempt: using a state monad to keep track of results
 
 type OpenRecursion m a b = (a -> m b) -> a -> m b
 
