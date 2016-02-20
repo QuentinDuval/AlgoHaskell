@@ -3,11 +3,12 @@
 {-# LANGUAGE RankNTypes #-}
 module Puzzles.Memoization where
 
+import Control.Arrow
 import Control.Monad.State
 import Data.Function (fix)
 import Data.Function.Memoize
 import Data.Hashable
-import qualified Data.IntMap as IM
+import qualified Data.HashMap.Lazy as LazyHM
 import qualified Data.HashMap.Strict as HM
 import qualified Data.Vector as V
 import qualified Tree.NaturalTree as Nat
@@ -70,6 +71,20 @@ memoTree n = memoized n   -- ^ Remove n and it stays between function calls
   where
     memoized  = fun' (memoTable `Nat.at`)
     memoTable = fmap memoized Nat.indices
+
+
+-- | Memoization via a lazy hash map
+-- * Poor lazyness: the values are not computed, but the keys are
+-- * Fast random access in nearly O(1)
+--
+-- It has bad data locality when compared to the vector.
+-- It still has some form of lazyness, strict hash map would crash
+
+memoMap :: Int -> Integer
+memoMap n = memoized n
+  where
+    memoized  = fun' ((LazyHM.!) memoTable)
+    memoTable = LazyHM.fromList $ fmap (id &&& memoized) [0..n]
 
 
 -- | Memoization using traditional methods
