@@ -5,6 +5,7 @@ module Benchs (
 
 import Bench.Queue
 import Bench.Puzzles.FibBench
+import Bench.Puzzles.MemoizationBench
 import qualified Data.Set as S
 import System.IO
 
@@ -26,4 +27,5 @@ runAllBenchs args = do
 runBench :: String -> IO ()
 runBench "Queue"      = runQueueBench
 runBench "Fibonacci"  = runFibBench
+runBench "Memoize"    = runMemoBench
 runBench _            = pure ()

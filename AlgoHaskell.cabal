@@ -42,9 +42,7 @@ library
 
     build-depends:
         HUnit -any,
-        QuickCheck -any,
         base -any,
-        criterion -any,
         deepseq -any,
         split -any,
         time -any,
@@ -66,6 +64,12 @@ executable exe-AlgoHaskell
         AlgoHaskell -any,
         base -any,
         criterion -any,
+        deepseq -any,
+        split -any,
+        time -any,
+        vector -any,
+        memoize -any,
+        unordered-containers -any,
         containers >=0.5.6.2 && <0.6,
         mtl >=2.2.1 && <2.3,
         unordered-containers >=0.2.5.1 && <0.3,
@@ -74,6 +78,7 @@ executable exe-AlgoHaskell
     hs-source-dirs: src test
     other-modules:
         Bench.Puzzles.FibBench
+        Bench.Puzzles.MemoizationBench
         Benchs
         Bench.Queue
     ghc-options: -ferror-spans -O2
