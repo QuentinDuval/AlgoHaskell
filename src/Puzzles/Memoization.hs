@@ -6,8 +6,9 @@ module Puzzles.Memoization where
 import Control.Monad.State
 import Data.Function (fix)
 import Data.Function.Memoize
+import Data.Hashable
 import qualified Data.IntMap as IM
-import qualified Data.Map as OM
+import qualified Data.HashMap.Strict as HM
 import qualified Data.Vector as V
 import qualified Tree.NaturalTree as Nat
 
@@ -38,7 +39,8 @@ fun' f n
 
 
 -- | Memoization via an infinite list
--- Good lazyness but bad random access
+-- * Good lazyness, very interesting in this example
+-- * But bad O(N) random access hurts for big ints
 
 memoList :: Int -> Integer
 memoList n = memoized n   -- ^ Remove n and it stays between function calls
@@ -48,7 +50,8 @@ memoList n = memoized n   -- ^ Remove n and it stays between function calls
 
 
 -- | Memoization via a finite vector
--- No lazyness but O(1) random access
+-- * No lazyness, which is bad for this example
+-- * But O(1) random access for fast memoization
 
 memoVector :: Int -> Integer
 memoVector n = memoized n
@@ -58,7 +61,9 @@ memoVector n = memoized n
 
 
 -- | Memoization via an infinite tree
--- Good lazyness and log N random access
+-- * Very good lazyness, must have for this example
+-- * Fast O(log N) random access
+-- On this example, performs much better than the vector due to lazyness
 
 memoTree :: Int -> Integer
 memoTree n = memoized n   -- ^ Remove n and it stays between function calls
@@ -68,8 +73,9 @@ memoTree n = memoized n   -- ^ Remove n and it stays between function calls
 
 
 -- | Memoization using traditional methods
--- * Via side-effects and storage in associative containers
--- * Can be done generatically (example shown below)
+-- * Via side-effects and storage in associative container
+-- * Can be done generatically (if monad is supported)
+-- * Imperative instead of declarative, but effective
 
 funM :: (Monad m) => (Int -> m Integer) -> Int -> m Integer
 funM f n
@@ -78,37 +84,22 @@ funM f n
       subVals <- mapM f $ div n <$> [2, 3, 4]
       return $ max (fromIntegral n) (sum subVals)
 
-memoMonad :: Int -> Integer
-memoMonad n = memoized n `evalState` IM.empty
-  where
-    memoized :: Int -> State (IM.IntMap Integer) Integer
-    memoized n = do
-      cached <- IM.lookup n <$> get
-      case cached of
-        Just res -> return res
-        Nothing  -> do
-          res <- funM memoized n
-          modify (IM.insert n res)
-          return res
-
--- Generalized version
-
 type OpenRecursion m a b = (a -> m b) -> a -> m b
 
-memoRecur :: (Ord a) => (forall m. Monad m => OpenRecursion m a b) -> a -> b
-memoRecur f n = memoized n `evalState` OM.empty
+genericMemoMonad :: (Eq a, Hashable a) => (forall m. Monad m => OpenRecursion m a b) -> a -> b
+genericMemoMonad f n = memoized n `evalState` HM.empty
   where
     memoized n = do
-      cached <- OM.lookup n <$> get
+      cached <- HM.lookup n <$> get
       case cached of
         Just res -> return res
         Nothing  -> do
           res <- f memoized n
-          modify (OM.insert n res)
+          modify (HM.insert n res)
           return res
 
-testMemoRecur :: Int -> IO ()
-testMemoRecur = print . memoRecur funM
+memoMonad :: Int -> Integer
+memoMonad = genericMemoMonad funM
 
 
 -- | Using the module Data.Function.Memoize
