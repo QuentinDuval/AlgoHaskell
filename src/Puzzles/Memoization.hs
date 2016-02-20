@@ -217,3 +217,6 @@ memoKnapsack items totalSize = memoTable & V.last & V.head -- ^ "&" is "flip ($)
     itemCount = V.length items
     memoized  = knapsack items (\start size -> memoTable V.! size V.! start)
     memoTable = V.generate (succ totalSize) (V.generate (succ itemCount) . flip memoized)
+
+memoKnapsack2 :: V.Vector Item -> Int -> Int
+memoKnapsack2 items = memoFix2 (knapsack items) 0

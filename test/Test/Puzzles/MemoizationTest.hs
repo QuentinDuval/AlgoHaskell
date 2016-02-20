@@ -14,7 +14,8 @@ runAllMemoTests = TestList [
         runCutRodTest   "memoCutRod"  memoCutRod,
         runCutRodTest   "memoCutRod2" memoCutRod2,
         runKnapsackTest "naiveKnapsack" naiveKnapsack,
-        runKnapsackTest "memoKnapsack"  memoKnapsack
+        runKnapsackTest "memoKnapsack"  memoKnapsack,
+        runKnapsackTest "memoKnapsack2" memoKnapsack2
     ]
 
 
