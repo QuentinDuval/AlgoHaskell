@@ -5,6 +5,7 @@ module Puzzles.Memoization where
 
 import Control.Monad.State
 import Data.Function (fix)
+import Data.Function.Memoize
 import qualified Data.IntMap as IM
 import qualified Data.IntTrie as T
 import qualified Data.Map as OM
@@ -87,6 +88,7 @@ memoMonad n = memoized n `evalState` IM.empty
 
 
 -- | Generalization of memoization
+-- Attempt at doing it manually
 
 type OpenRecursion m a b = (a -> m b) -> a -> m b
 
@@ -104,3 +106,9 @@ memoRecur f n = memoized n `evalState` OM.empty
 
 testMemoRecur :: Int -> IO ()
 testMemoRecur = print . memoRecur funM
+
+
+-- | Using the module Data.Function.Memoize
+
+testMemoizeMod :: Int -> IO ()
+testMemoizeMod = print . memoFix fun'
