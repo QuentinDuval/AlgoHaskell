@@ -111,6 +111,17 @@ testMemoRecur = print . memoRecur funM
 
 
 -- | Using the module Data.Function.Memoize
+--
+-- This module works via recursion:
+-- * Memoize the results of (a -> b) by storing results by a
+-- * Memoize the results of (a -> b -> c) by storing the (b -> c) results of a
+-- * To first store the result of a, it needs to be enumerable (mapping to int)
+-- * Then it proceeds by using a kind of infinite binary tree for lookups
+--
+-- Complexity of lookups:
+-- * O(log A) for function with one argument of cardinality A
+-- * O(log A + log B) for functions with two arguments of cardinality A and B
+-- * With uncurry, the loopup is done by pair: O(log (A * B)) = O(log A + log B)
 
 testMemoizeMod :: Int -> IO ()
 testMemoizeMod = print . memoFix fun'
