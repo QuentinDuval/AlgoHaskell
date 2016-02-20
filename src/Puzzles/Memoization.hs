@@ -157,7 +157,7 @@ memoModule = memoFix fun'
 cutRod :: V.Vector Int -> (Int -> Int) -> Int -> Int
 cutRod values subProblem l
   | l == 0    = 0
-  | otherwise = maximum [ (V.!) values (k-1) + subProblem (l-k) | k <- [1..l] ]
+  | otherwise = maximum [ values V.! (k-1) + subProblem (l-k) | k <- [1..l] ]
 
 naiveCutRod :: V.Vector Int -> Int
 naiveCutRod values = fix (cutRod values) (V.length values)
@@ -165,7 +165,7 @@ naiveCutRod values = fix (cutRod values) (V.length values)
 memoCutRod :: V.Vector Int -> Int
 memoCutRod values = V.last memoTable
   where
-    memoized  = cutRod values ((V.!) memoTable)
+    memoized  = cutRod values (memoTable V.!)
     memoTable = V.generate (V.length values + 1) memoized
 
 memoCutRod2 :: V.Vector Int -> Int
@@ -175,7 +175,7 @@ memoCutRod2 values = runST $ do
   forM_ [1 .. len] $ \l -> do
     values <- forM [1..l] $ \k -> do
       subProblem <- UV.read memoTable (l-k)
-      return $ (V.!) values (k-1) + subProblem
+      return $ values V.! (k-1) + subProblem
     UV.write memoTable l (maximum values)
   UV.read memoTable len
 
@@ -202,7 +202,7 @@ knapsack items subProblem startIndex remSize
   | size == remSize = max withoutItem value
   | otherwise       = withoutItem
   where
-    (size, value) = (V.!) items startIndex
+    (size, value) = items V.! startIndex
     suffixProblem = subProblem (succ startIndex)
     withoutItem   = suffixProblem remSize
     withItem      = suffixProblem (remSize - size)
