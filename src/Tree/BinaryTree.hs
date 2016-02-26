@@ -27,8 +27,10 @@ node = Node
 
 
 -- | Construction of a balanced binary tree
--- Implementation with 2 traversals: O(N) complexity
+
+-- First implementation with 2 traversals: O(N) complexity
 -- Calling splitAt or length at each level would make it O(N log N)
+
 buildBalanced :: [a] -> BinaryTree a
 buildBalanced vals = fst $ build (length vals) vals
   where
@@ -38,6 +40,18 @@ buildBalanced vals = fst $ build (length vals) vals
           (ltree, root : rvals) = build mid vals
           (rtree, remainingVal) = build (len - mid - 1) rvals
       in (node root ltree rtree, remainingVal)
+
+-- Second implementation with only one traversal: O(N) complexity
+-- Using skew binary numbers to build the tree
+-- TODO: does not seem to be working...
+
+buildBalancedSkew :: [a] -> BinaryTree a
+buildBalancedSkew = go []
+  where
+    go acc [] = undefined -- foldl (node ???) Leaf $ fmap fst acc
+    go ((t1, r1):(t2, r2):ts) (x:xs)
+      | r1 == r2 = go ((node x t1 t2, succ r1) : ts) xs
+    go ts (x:xs) = go ((leaf x, 1) : ts) xs
 
 
 -- | Traversal
