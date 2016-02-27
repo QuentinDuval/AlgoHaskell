@@ -3,6 +3,8 @@ module FunWithFold (
 ) where
 
 
+import Data.List
+
 {-
 -- Example of map and fold as support for an introduction to Haskell
 -}
@@ -22,6 +24,20 @@ foldIntro = do
 
   print $ foldl (-) 20 [1..5] -- ^ Expected result: -5
   print $ foldr (-) 20 [1..5] -- ^ Might not be what you think: -17
+
+
+-- | Think functionally
+
+roundRobin :: [[a]] -> [a]
+roundRobin = go []
+  where
+    go acc ([]: rest)      = go acc rest
+    go acc ((x:xs) : rest) = x : go (xs : acc) rest
+    go []  []              = []
+    go acc []              = go [] (reverse acc)
+
+roundRobin2 :: [[a]] -> [a]
+roundRobin2 = concat . transpose
 
 
 -- Applied to domain
