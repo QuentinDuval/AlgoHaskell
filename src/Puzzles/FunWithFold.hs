@@ -39,6 +39,8 @@ roundRobin = go []
 roundRobin2 :: [[a]] -> [a]
 roundRobin2 = concat . transpose
 
+-- TODO: Example of group by to construct a map, then map on the map :)
+
 
 -- Applied to domain
 
