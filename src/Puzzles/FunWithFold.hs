@@ -4,6 +4,7 @@ module FunWithFold (
 
 
 import Data.List
+import qualified Data.Map as M
 
 {-
 -- Example of map and fold as support for an introduction to Haskell
@@ -24,6 +25,11 @@ foldIntro = do
 
   print $ foldl (-) 20 [1..5] -- ^ Expected result: -5
   print $ foldr (-) 20 [1..5] -- ^ Might not be what you think: -17
+
+  print $ fmap length $ groupWith (`mod` 5) [1..100]
+
+groupWith :: (Ord k) => (v -> k) -> [v] -> M.Map k [v]
+groupWith proj = foldr (\a m -> M.insertWith (++) (proj a) [a] m) M.empty
 
 
 -- | Think functionally
