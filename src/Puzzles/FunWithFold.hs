@@ -55,7 +55,7 @@ mapServerStream = do
   ints <- newTQueueIO
   -- strs <- mapTChan intToDigit ints                        -- ^ Slow...
   -- let strs = (fmap . fmap) intToDigit (toStmStream ints)  -- ^ Too complicated
-  let strs = fmap intToDigit (readTQueue ints)              -- ^ Just fine
+  let strs = fmap intToDigit (readTQueue ints)               -- ^ Just fine
 
   r <- async $ do
     -- vs <- replicateM 5 (atomically $ readTQueue strs)
