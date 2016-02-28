@@ -112,7 +112,7 @@ foldFunction = do
   -- ^ Customizing the composition operator
   let comp r f i = if f i < 0 then f i else r (f i)
   print $ foldl comp id [(+5), (*2), (2-)] 1 -- ^ 7
-  print $ foldl comp id [(+5), (*2), (2-)] 3 -- ^ -1
+  print $ foldr comp id [(+5), (*2), (2-)] 3 -- ^ -1
 
   -- ^ It is very different from simply chaining!
   let chain r f = if r < 0 then r else f r
