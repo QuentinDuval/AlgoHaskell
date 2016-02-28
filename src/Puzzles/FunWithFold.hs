@@ -53,7 +53,7 @@ mapServerStream :: IO ()
 mapServerStream = do
 
   ints <- newTQueueIO
-  -- strs <- mapTChan intToDigit ints                        -- ^ Slow...
+  -- strs <- mapTChan intToDigit ints                        -- ^ Slow and useless
   -- let strs = (fmap . fmap) intToDigit (toStmStream ints)  -- ^ Too complicated
   let strs = fmap intToDigit (readTQueue ints)               -- ^ Just fine
 
