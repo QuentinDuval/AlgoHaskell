@@ -43,14 +43,14 @@ mapNested = do
 -- Generalization of map
 --------------------------------------------------------------------------------
 
--- Would be too slow : Just fmap over the STM instead
-mapTChan :: (a -> b) -> TQueue a -> IO (TQueue b)
-mapTChan f i = do
-  o <- newTQueueIO
-  forkIO $ forever $ atomically $ do
-    v <- readTQueue i
-    writeTQueue o (f v)
-  return o
+-- | Would be too slow : Just fmap over the STM instead
+-- mapTChan :: (a -> b) -> TQueue a -> IO (TQueue b)
+-- mapTChan f i = do
+--   o <- newTQueueIO
+--   forkIO $ forever $ atomically $ do
+--     v <- readTQueue i
+--     writeTQueue o (f v)
+--   return o
 
 filterChan :: (Monad m) => (a -> Bool) -> m a -> m a
 filterChan cond a = do
@@ -61,21 +61,25 @@ filterChan cond a = do
 mergeChans :: STM a -> STM a -> STM a
 mergeChans = orElse
 
-mapServerStream :: IO ()
-mapServerStream = do
+mappingStreams :: IO ()
+mappingStreams = do
 
   ints <- newTQueueIO
   strs <- newTQueueIO
-  let lhs = readTQueue ints
-      rhs = readTQueue strs & fmap digitToInt
-      out = mergeChans lhs rhs & filterChan even & fmap intToDigit
+  let lhs = readTQueue ints                       -- ^ Simple queue output
+      rhs = readTQueue strs & fmap digitToInt     -- ^ Transform the queue output
+      out = mergeChans lhs rhs & filterChan even  -- ^ Merge and filter
+                               & fmap intToDigit  -- ^ Transform further
+
+  let writeLhs = writeTQueue ints                 -- ^ Simple queue input
+      writeRhs = writeTQueue strs . intToDigit    -- ^ Transform the queue input
 
   r <- async $ do
     vs <- replicateM 10 (atomically out)
     mapM_ print vs
 
-  mapM_ (atomically . writeTQueue ints) [0..9]
-  mapM_ (atomically . writeTQueue strs) ['0'..'9']
+  mapM_ (atomically . writeLhs) [0..9]
+  mapM_ (atomically . writeRhs) [0..9]
   wait r
 
 
