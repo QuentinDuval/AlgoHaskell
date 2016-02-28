@@ -95,11 +95,8 @@ mappingStreams = do
       v <- out
       print v
 
-  --forM_ [0..9] $ \i -> do
-  --  atomically $ writeLhs i >> writeRhs i
-  mapM_ (atomically . writeLhs) [0..9]
-  mapM_ (atomically . writeRhs) [0..9]
-  -- cancel r
+  forM_ [0..9] $ \i ->
+    atomically (writeLhs i >> writeRhs i)
   wait r
 
 
