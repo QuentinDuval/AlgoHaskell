@@ -1,5 +1,7 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE KindSignatures #-}
+{-# LANGUAGE RecordWildCards #-}
+
 module FunWithFold (
 
 ) where
@@ -98,6 +100,43 @@ mappingStreams = do
   forM_ [0..9] $ \i ->
     atomically (writeLhs i >> writeRhs i)         -- ^ Atomically forces alternation here
   wait r
+
+
+--------------------------------------------------------------------------------
+-- To communicating sequence process
+--------------------------------------------------------------------------------
+
+data Screen = Screen { name, mail :: TVar String }
+
+makeScreen :: STM Screen
+makeScreen = Screen <$> newTVar "" <*> newTVar ""
+
+controler :: Screen -> TMVar () -> IO ()
+controler Screen{..} okChan = loop
+  where
+    loop = do
+      continue <- atomically $ do
+        takeTMVar okChan
+        n <- readTVar name
+        m <- readTVar mail
+        pure (null n || null m)
+      when continue loop
+
+cspLike :: IO ()
+cspLike = do
+
+  screen <- atomically makeScreen
+  okChan <- newEmptyTMVarIO
+  r <- async (controler screen okChan)
+
+  atomically $ putTMVar okChan ()
+  atomically $ writeTVar (name screen) "John Doe"
+  atomically $ putTMVar okChan ()
+  atomically $ writeTVar (mail screen) "mail@mail.mail"
+  atomically $ putTMVar okChan ()
+
+  wait r >> print "Close screen"
+
 
 
 --------------------------------------------------------------------------------
@@ -270,4 +309,5 @@ handle state _          = state
 
 foldFSM :: IO ()
 foldFSM = do
+  -- TODO: use a state structre with functions
   print $ foldl handle Init [Start, Task, Task, Stop, Task]
