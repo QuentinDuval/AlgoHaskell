@@ -46,31 +46,25 @@ mapTChan f i = do
     writeTQueue o (f v)
   return o
 
-
-toStream :: TQueue a -> [IO a]
-toStream i = do
-  let v = atomically $ readTQueue i
-  v : toStream i
-
-mapStream :: (Functor f, Functor g) => (a -> b) -> f (g a) -> f (g b)
-mapStream = fmap . fmap
+toStmStream :: TQueue a -> [STM a]
+toStmStream i = readTQueue i : toStmStream i
 
 mapServerStream :: IO ()
 mapServerStream = do
 
   ints <- newTQueueIO
-  -- strs <- mapTChan intToDigit ints
-  let strs = mapStream intToDigit (toStream ints)
+  -- strs <- mapTChan intToDigit ints                        -- ^ Slow...
+  -- let strs = (fmap . fmap) intToDigit (toStmStream ints)  -- ^ Too complicated
+  let strs = fmap intToDigit (readTQueue ints)              -- ^ Just fine
 
   r <- async $ do
-    -- v <- atomically $ readTQueue strs
-    vs <- sequence $ take 5 strs
-    print vs
-    -- print v
+    -- vs <- replicateM 5 (atomically $ readTQueue strs)
+    -- vs <- mapM atomically $ take 5 strs
+    vs <- replicateM 5 (atomically strs)
+    mapM_ print vs
 
   mapM_ (atomically . writeTQueue ints) [0..9]
   wait r
-  putStrLn "Done"
 
 
 --------------------------------------------------------------------------------
