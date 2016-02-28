@@ -2,6 +2,10 @@ module FunWithFold (
 
 ) where
 
+import Control.Concurrent
+import Control.Concurrent.Async
+import Control.Concurrent.STM
+import Control.Monad
 import Data.Char
 import Data.List
 import qualified Data.Map as M
@@ -33,6 +37,40 @@ mapNested = do
   print $ (fmap . fmap) intToDigit l  -- ^ [Just '2', Just '3', Just '4']
   print $ (fmap . fmap) intToDigit m  -- ^ fromList [(2, "246"), (3, "369")]
 
+
+mapTChan :: (a -> b) -> TQueue a -> IO (TQueue b)
+mapTChan f i = do
+  o <- newTQueueIO
+  forkIO $ forever $ atomically $ do
+    v <- readTQueue i
+    writeTQueue o (f v)
+  return o
+
+
+toStream :: TQueue a -> [IO a]
+toStream i = do
+  let v = atomically $ readTQueue i
+  v : toStream i
+
+mapStream :: (Functor f, Functor g) => (a -> b) -> f (g a) -> f (g b)
+mapStream = fmap . fmap
+
+mapServerStream :: IO ()
+mapServerStream = do
+
+  ints <- newTQueueIO
+  -- strs <- mapTChan intToDigit ints
+  let strs = mapStream intToDigit (toStream ints)
+
+  r <- async $ do
+    -- v <- atomically $ readTQueue strs
+    vs <- sequence $ take 5 strs
+    print vs
+    -- print v
+
+  mapM_ (atomically . writeTQueue ints) [0..9]
+  wait r
+  putStrLn "Done"
 
 
 --------------------------------------------------------------------------------
