@@ -20,13 +20,13 @@ foldIntro = do
   print $ foldl (+) 0 [1..10] -- ^ 55
   print $ foldr (+) 0 [1..10] -- ^ 55
 
-  print $ foldl (++) "" ["use", " concat ", "insead"] -- ^ Slower
-  print $ foldr (++) "" ["use", " concat ", "insead"] -- ^ Faster
+  print $ foldl (++) "" ["use", " concat ", "instead"] -- ^ Slower
+  print $ foldr (++) "" ["use", " concat ", "instead"] -- ^ Faster
 
   print $ foldl (-) 20 [1..5] -- ^ Expected result: -5
   print $ foldr (-) 20 [1..5] -- ^ Might not be what you think: -17
 
-  print $ fmap length $ groupWith (`mod` 5) [1..100]
+  print $ fmap sum (groupWith (`mod` 5) [1..100])
 
 groupWith :: (Ord k) => (v -> k) -> [v] -> M.Map k [v]
 groupWith proj = foldr (\a m -> M.insertWith (++) (proj a) [a] m) M.empty
@@ -44,8 +44,6 @@ roundRobin = go []
 
 roundRobin2 :: [[a]] -> [a]
 roundRobin2 = concat . transpose
-
--- TODO: Example of group by to construct a map, then map on the map :)
 
 
 -- Applied to domain
