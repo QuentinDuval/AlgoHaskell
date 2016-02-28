@@ -7,6 +7,7 @@ import Control.Concurrent.Async
 import Control.Concurrent.STM
 import Control.Monad
 import Data.Char
+import Data.Function((&))
 import Data.List
 import qualified Data.Map as M
 
@@ -46,20 +47,22 @@ mapTChan f i = do
     writeTQueue o (f v)
   return o
 
-toStmStream :: TQueue a -> [STM a]
-toStmStream i = readTQueue i : toStmStream i
+filterChan :: (a -> Bool) -> STM a -> STM a
+filterChan cond a = do
+  v <- fmap cond a
+  if v then a
+       else filterChan cond a
 
 mapServerStream :: IO ()
 mapServerStream = do
 
   ints <- newTQueueIO
-  -- strs <- mapTChan intToDigit ints                        -- ^ Slow and useless
-  -- let strs = (fmap . fmap) intToDigit (toStmStream ints)  -- ^ Too complicated
-  let strs = fmap intToDigit (readTQueue ints)               -- ^ Just fine
+  -- strs <- mapTChan intToDigit ints                               -- ^ Slow and useless
+  -- let strs = fmap intToDigit (filterChan even (readTQueue ints)) -- ^ Just fine
+  let strs = readTQueue ints & filterChan even & fmap intToDigit    -- ^ Same, piped
 
   r <- async $ do
     -- vs <- replicateM 5 (atomically $ readTQueue strs)
-    -- vs <- mapM atomically $ take 5 strs
     vs <- replicateM 5 (atomically strs)
     mapM_ print vs
 
