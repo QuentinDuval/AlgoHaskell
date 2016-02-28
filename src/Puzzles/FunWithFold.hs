@@ -96,7 +96,7 @@ mappingStreams = do
       print v
 
   forM_ [0..9] $ \i ->
-    atomically (writeLhs i >> writeRhs i)
+    atomically (writeLhs i >> writeRhs i)         -- ^ Atomically forces alternation here
   wait r
 
 
