@@ -85,6 +85,15 @@ foldFunction = do
   let chain r f = if r < 0 then r else f r
   print $ foldl chain 1 [(+5), (*2), (2-)] -- ^ -10
 
+  -- ^ Comparison, stopping early (lexicographic compare)
+  let lexicoComp = foldr (\(a, b) rest ->
+                      let cab = compare a b
+                      in if cab /= EQ then cab else rest) EQ
+  print $ lexicoComp $ zip [1, 2, 3] [1, 3, 2]
+  print $ lexicoComp $ zip [1, 3, 2] [1, 2, 3]
+  print $ lexicoComp $ zip [1..] [2..]
+
+
 
 -- State machine
 
