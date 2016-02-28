@@ -69,25 +69,29 @@ filterChan cond a = do
   if v then a
        else filterChan cond a
 
-mergeChans :: STM a -> STM a -> STM a
-mergeChans = orElse
+altChan :: STM a -> STM a -> STM a
+altChan = orElse
 
 mappingStreams :: IO ()
 mappingStreams = do
 
-  -- TODO: issue here: if one item channel, the filter blocks everything, due to atomicity
   ints <- newTBQueueIO 1
   strs <- newTBQueueIO 1
+
+  -- Beware: atomically is needed after merge chan, or filtering will block!
+  -- * It would try to read atomically until it finds a good input
+  -- * And would put back the elements in the queue if none were found
   let lhs = readTBQueue ints                      -- ^ Simple queue output
       rhs = readTBQueue strs & fmap digitToInt    -- ^ Transform the queue output
-      out = mergeChans lhs rhs & filterChan even  -- ^ Merge and filter
-                               & fmap intToDigit  -- ^ Transform further
+      out = atomically (altChan lhs rhs)          -- ^ Merging inputs
+              & filterChan even                   -- ^ Filtering the outputs
+              & fmap intToDigit                   -- ^ Transform further
 
   let writeLhs = writeTBQueue ints                -- ^ Simple queue input
       writeRhs = writeTBQueue strs . intToDigit   -- ^ Transform the queue input
 
   r <- async $ do
-    vs <- replicateM 10 (atomically out)
+    vs <- replicateM 10 out
     mapM_ print vs
 
   mapM_ (atomically . writeLhs) [0..9]
