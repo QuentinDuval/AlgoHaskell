@@ -65,8 +65,8 @@ mapNested = do
 
 filterChan :: (Monad m) => (a -> Bool) -> m a -> m a
 filterChan cond a = do
-  v <- a  -- ^ Beware: calling "a" twice means you read twice
-  if cond v
+  v <- a          -- ^ Beware: calling "a" twice means you read twice
+  if cond v       -- ^ In general, it means triggering the side effect twice
     then pure v
     else filterChan cond a
 
