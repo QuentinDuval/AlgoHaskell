@@ -1,3 +1,5 @@
+{-# LANGUAGE DataKinds #-}
+{-# LANGUAGE KindSignatures #-}
 module FunWithFold (
 
 ) where
@@ -154,6 +156,41 @@ withReadFile path fct = do
   r <- fct f
   hClose f
   return r
+
+
+--------------------------------------------------------------------------------
+-- Phantom types
+--------------------------------------------------------------------------------
+
+data Status = Edited | Validated
+
+data Trade (s :: Status) = Trade {
+  quantity    :: Double,
+  instrument  :: String
+} deriving (Show)
+
+newTrade :: Double -> String -> Trade Edited
+newTrade = Trade
+
+setQuantity :: Trade a -> Double -> Trade Edited
+setQuantity t q = t { quantity = q }
+
+validateTrade :: Trade a -> Trade Validated
+validateTrade t = t { quantity = quantity t } -- ^ Hack... how to do it?
+
+saveTrade :: Trade Validated -> IO ()
+saveTrade t = putStrLn ("[SAVING] " ++ show t)
+
+testPhantomType :: IO ()
+testPhantomType = do
+  let t1 = newTrade 10 "EUR"
+      t2 = validateTrade t1
+      t3 = setQuantity t2 12
+      t4 = validateTrade t3
+  -- saveTrade t1  -- ^ Does not compile
+  saveTrade t2
+  -- saveTrade t3  -- ^ Does not compile
+  saveTrade t4
 
 
 --------------------------------------------------------------------------------
