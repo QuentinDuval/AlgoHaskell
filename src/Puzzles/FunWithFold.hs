@@ -7,11 +7,9 @@ import Data.List
 import qualified Data.Map as M
 
 
-{-
+--------------------------------------------------------------------------------
 -- Example of map as support for an introduction to Haskell
--}
-
--- Simple examples as introduction
+--------------------------------------------------------------------------------
 
 mapIntro :: IO ()
 mapIntro = do
@@ -37,9 +35,9 @@ mapNested = do
 
 
 
-{-
+--------------------------------------------------------------------------------
 -- Example of fold as support for an introduction to Haskell
--}
+--------------------------------------------------------------------------------
 
 foldIntro :: IO ()
 foldIntro = do
@@ -56,8 +54,6 @@ foldIntro = do
   let groupWith proj = foldr (\a m -> M.insertWith (++) (proj a) [a] m) M.empty
   print $ fmap sum (groupWith (`mod` 5) [1..100])
 
-
--- Think functions!
 
 foldFunction :: IO ()
 foldFunction = do
@@ -83,8 +79,9 @@ foldFunction = do
   print $ lexicoComp $ zip [1..] [2..]
 
 
-
--- | Think functionally
+--------------------------------------------------------------------------------
+-- Think functionally
+--------------------------------------------------------------------------------
 
 roundRobin :: [[a]] -> [a]
 roundRobin = go []
@@ -98,7 +95,9 @@ roundRobin2 :: [[a]] -> [a]
 roundRobin2 = concat . transpose
 
 
+--------------------------------------------------------------------------------
 -- Applied to domain
+--------------------------------------------------------------------------------
 
 data Transaction      = Transaction { amount :: Double }   deriving (Show)
 data TransactionEvent = Unwind      { ratio :: Double }    deriving (Show)
@@ -120,7 +119,9 @@ foldDomain = do
 -- TODO: fold to accumulate coupons?
 
 
+--------------------------------------------------------------------------------
 -- State machine
+--------------------------------------------------------------------------------
 
 data FSM = Init | Running Int | Stopped Int deriving (Show)
 data Transition = Start | Task | Stop       deriving (Show)
