@@ -112,7 +112,10 @@ makeScreen :: STM Screen
 makeScreen = Screen <$> newTVar "" <*> newTVar ""
 
 controler :: Screen -> TMVar () -> IO ()
-controler Screen{..} okChan = loop
+controler Screen{..} okChan =
+  do loop
+     print "Waiting confirmation..."
+     atomically $ takeTMVar okChan
   where
     loop = do
       continue <- atomically $ do
@@ -133,6 +136,7 @@ cspLike = do
   atomically $ writeTVar (name screen) "John Doe"
   atomically $ putTMVar okChan ()
   atomically $ writeTVar (mail screen) "mail@mail.mail"
+  atomically $ putTMVar okChan ()
   atomically $ putTMVar okChan ()
 
   wait r >> print "Close screen"
