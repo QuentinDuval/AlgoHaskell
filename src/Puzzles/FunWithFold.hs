@@ -10,6 +10,7 @@ import Data.Char
 import Data.Function((&))
 import Data.List
 import qualified Data.Map as M
+import System.IO
 
 
 --------------------------------------------------------------------------------
@@ -125,6 +126,34 @@ foldFunction = do
   print $ lexicoComp $ zip [1, 2, 3] [1, 3, 2]
   print $ lexicoComp $ zip [1, 3, 2] [1, 2, 3]
   print $ lexicoComp $ zip [1..] [2..]
+
+
+--------------------------------------------------------------------------------
+-- Higher order function and explaining RAII equivalent
+--------------------------------------------------------------------------------
+
+class (Monad m) => LicenceMonad m where
+  checkLicence :: String -> m Bool
+
+instance LicenceMonad IO where
+  checkLicence _ = pure True
+
+withLicence :: (LicenceMonad m) => String -> m a -> m (Maybe a)
+withLicence licenceName fct = do
+  granted <- checkLicence licenceName
+  if granted
+    then fmap Just fct
+    else pure Nothing
+
+withTransaction :: STM a -> IO a
+withTransaction = atomically
+
+withReadFile :: FilePath -> (Handle -> IO a) -> IO a
+withReadFile path fct = do
+  f <- openFile path ReadMode
+  r <- fct f
+  hClose f
+  return r
 
 
 --------------------------------------------------------------------------------
