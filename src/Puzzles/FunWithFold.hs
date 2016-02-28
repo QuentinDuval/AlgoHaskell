@@ -6,11 +6,10 @@ module FunWithFold (
 import Data.List
 import qualified Data.Map as M
 
+
 {-
 -- Example of map and fold as support for an introduction to Haskell
 -}
-
-
 
 -- Simple examples as introduction
 
@@ -26,10 +25,8 @@ foldIntro = do
   print $ foldl (-) 20 [1..5] -- ^ Expected result: -5
   print $ foldr (-) 20 [1..5] -- ^ Might not be what you think: -17
 
+  let groupWith proj = foldr (\a m -> M.insertWith (++) (proj a) [a] m) M.empty
   print $ fmap sum (groupWith (`mod` 5) [1..100])
-
-groupWith :: (Ord k) => (v -> k) -> [v] -> M.Map k [v]
-groupWith proj = foldr (\a m -> M.insertWith (++) (proj a) [a] m) M.empty
 
 
 -- | Think functionally
@@ -44,28 +41,6 @@ roundRobin = go []
 
 roundRobin2 :: [[a]] -> [a]
 roundRobin2 = concat . transpose
-
-
--- Applied to domain
-
-data Transaction      = Transaction { amount :: Double }   deriving (Show)
-data TransactionEvent = Unwind      { ratio :: Double }    deriving (Show)
-
-data Balance      = Balance Double deriving (Show)
-data BalanceEvent = Reset Double | Increment Double
-
-foldDomain :: IO ()
-foldDomain = do
-
-  let apply (Transaction d) (Unwind r) = Transaction (d * r)
-  print $ foldl apply (Transaction 100) [Unwind 0.5, Unwind 0.5]
-
-  let acc (Balance t) (Reset r)     = Balance r
-      acc (Balance t) (Increment i) = Balance (t + i)
-  print $ foldl acc (Balance 100) [Increment 10, Reset 120, Increment 1]
-
--- TODO: map to do split corporate actions - Reify the actions?
--- TODO: fold to accumulate coupons?
 
 
 -- Think functions!
@@ -94,6 +69,27 @@ foldFunction = do
   print $ lexicoComp $ zip [1..] [2..]
 
 
+-- Applied to domain
+
+data Transaction      = Transaction { amount :: Double }   deriving (Show)
+data TransactionEvent = Unwind      { ratio :: Double }    deriving (Show)
+
+data Balance      = Balance Double deriving (Show)
+data BalanceEvent = Reset Double | Increment Double
+
+foldDomain :: IO ()
+foldDomain = do
+
+  let apply (Transaction d) (Unwind r) = Transaction (d * r)
+  print $ foldl apply (Transaction 100) [Unwind 0.5, Unwind 0.5]
+
+  let acc (Balance t) (Reset r)     = Balance r
+      acc (Balance t) (Increment i) = Balance (t + i)
+  print $ foldl acc (Balance 100) [Increment 10, Reset 120, Increment 1]
+
+-- TODO: map to do split corporate actions - Reify the actions?
+-- TODO: fold to accumulate coupons?
+
 
 -- State machine
 
@@ -109,13 +105,7 @@ handle (Running s) Task = Running (succ s)
 handle (Running s) Stop = Stopped s
 handle state _          = state
 
--- fsm = loop start
---   where
---     loop handler tr
---       = case handler tr
---           of Just next -> loop next
---              _         -> ()
---
+-- fsm = start
 --     start Start = run
 --     run   Stop  = stop
 --     stop  _     = stop
