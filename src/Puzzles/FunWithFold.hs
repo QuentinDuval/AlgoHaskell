@@ -113,9 +113,11 @@ makeScreen = Screen <$> newTVar "" <*> newTVar ""
 
 controler :: Screen -> TMVar () -> IO ()
 controler Screen{..} okChan =
-  do loop
+  do print "Waiting user inputs..."
+     loop
      print "Waiting confirmation..."
      atomically $ takeTMVar okChan
+     print "Confirmation received..."
   where
     loop = do
       continue <- atomically $ do
