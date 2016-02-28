@@ -47,12 +47,20 @@ mapNested = do
 --------------------------------------------------------------------------------
 
 -- | Would be too slow : Just fmap over the STM instead
--- mapTChan :: (a -> b) -> TQueue a -> IO (TQueue b)
--- mapTChan f i = do
+-- mapQueue :: (a -> b) -> TQueue a -> IO (TQueue b)
+-- mapQueue f i = do
 --   o <- newTQueueIO
 --   forkIO $ forever $ atomically $ do
 --     v <- readTQueue i
 --     writeTQueue o (f v)
+--   return o
+--
+-- filterQueue :: (a -> Bool) -> STM a -> IO (TQueue a)
+-- filterQueue cond i = do
+--   o <- newTQueueIO
+--   forkIO $ forever $ atomically $ do
+--     v <- i
+--     when (cond v) $ writeTQueue o v
 --   return o
 
 filterChan :: (Monad m) => (a -> Bool) -> m a -> m a
@@ -67,15 +75,16 @@ mergeChans = orElse
 mappingStreams :: IO ()
 mappingStreams = do
 
-  ints <- newTQueueIO
-  strs <- newTQueueIO
-  let lhs = readTQueue ints                       -- ^ Simple queue output
-      rhs = readTQueue strs & fmap digitToInt     -- ^ Transform the queue output
+  -- TODO: issue here: if one item channel, the filter blocks everything, due to atomicity
+  ints <- newTBQueueIO 1
+  strs <- newTBQueueIO 1
+  let lhs = readTBQueue ints                      -- ^ Simple queue output
+      rhs = readTBQueue strs & fmap digitToInt    -- ^ Transform the queue output
       out = mergeChans lhs rhs & filterChan even  -- ^ Merge and filter
                                & fmap intToDigit  -- ^ Transform further
 
-  let writeLhs = writeTQueue ints                 -- ^ Simple queue input
-      writeRhs = writeTQueue strs . intToDigit    -- ^ Transform the queue input
+  let writeLhs = writeTBQueue ints                -- ^ Simple queue input
+      writeRhs = writeTBQueue strs . intToDigit   -- ^ Transform the queue input
 
   r <- async $ do
     vs <- replicateM 10 (atomically out)
