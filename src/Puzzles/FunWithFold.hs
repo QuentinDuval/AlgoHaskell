@@ -39,6 +39,11 @@ mapNested = do
   print $ (fmap . fmap) intToDigit m  -- ^ fromList [(2, "246"), (3, "369")]
 
 
+--------------------------------------------------------------------------------
+-- Generalization of map
+--------------------------------------------------------------------------------
+
+-- Would be too slow : Just fmap over the STM instead
 mapTChan :: (a -> b) -> TQueue a -> IO (TQueue b)
 mapTChan f i = do
   o <- newTQueueIO
@@ -47,26 +52,30 @@ mapTChan f i = do
     writeTQueue o (f v)
   return o
 
-filterChan :: (a -> Bool) -> STM a -> STM a
+filterChan :: (Monad m) => (a -> Bool) -> m a -> m a
 filterChan cond a = do
   v <- fmap cond a
   if v then a
        else filterChan cond a
 
+mergeChans :: STM a -> STM a -> STM a
+mergeChans = orElse
+
 mapServerStream :: IO ()
 mapServerStream = do
 
   ints <- newTQueueIO
-  -- strs <- mapTChan intToDigit ints                               -- ^ Slow and useless
-  -- let strs = fmap intToDigit (filterChan even (readTQueue ints)) -- ^ Just fine
-  let strs = readTQueue ints & filterChan even & fmap intToDigit    -- ^ Same, piped
+  strs <- newTQueueIO
+  let lhs = readTQueue ints
+      rhs = readTQueue strs & fmap digitToInt
+      out = mergeChans lhs rhs & filterChan even & fmap intToDigit
 
   r <- async $ do
-    -- vs <- replicateM 5 (atomically $ readTQueue strs)
-    vs <- replicateM 5 (atomically strs)
+    vs <- replicateM 10 (atomically out)
     mapM_ print vs
 
   mapM_ (atomically . writeTQueue ints) [0..9]
+  mapM_ (atomically . writeTQueue strs) ['0'..'9']
   wait r
 
 
