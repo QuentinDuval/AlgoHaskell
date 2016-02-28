@@ -65,9 +65,10 @@ mapNested = do
 
 filterChan :: (Monad m) => (a -> Bool) -> m a -> m a
 filterChan cond a = do
-  v <- fmap cond a
-  if v then a
-       else filterChan cond a
+  v <- a  -- ^ Beware: calling "a" twice means you read twice
+  if cond v
+    then pure v
+    else filterChan cond a
 
 altChan :: STM a -> STM a -> STM a
 altChan = orElse
@@ -90,12 +91,15 @@ mappingStreams = do
   let writeLhs = writeTBQueue ints                -- ^ Simple queue input
       writeRhs = writeTBQueue strs . intToDigit   -- ^ Transform the queue input
 
-  r <- async $ do
-    vs <- replicateM 10 out
-    mapM_ print vs
+  r <- async $ replicateM_ 10 $ do
+      v <- out
+      print v
 
+  --forM_ [0..9] $ \i -> do
+  --  atomically $ writeLhs i >> writeRhs i
   mapM_ (atomically . writeLhs) [0..9]
   mapM_ (atomically . writeRhs) [0..9]
+  -- cancel r
   wait r
 
 
