@@ -125,7 +125,7 @@ controler Screen{..} okChan =
         n <- readTVar name
         m <- readTVar mail
         pure (null n || null m)
-      when continue loop
+      when continue $ print "Missing info!" >> loop
 
 cspLike :: IO ()
 cspLike = do
