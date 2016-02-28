@@ -296,24 +296,29 @@ foldDomain = do
 -- State machine
 --------------------------------------------------------------------------------
 
-data FSM = Init | Running Int | Stopped Int deriving (Show)
-data Transition = Start | Task | Stop       deriving (Show)
+data Transition = Start | Task | Stop
+  deriving (Show)
 
-fsm :: FSM
-fsm = Init
+data State = State {
+  state   :: Int,
+  accept  :: Transition -> State
+}
 
-handle :: FSM -> Transition -> FSM
-handle Init Start       = Running 0
-handle (Running s) Task = Running (succ s)
-handle (Running s) Stop = Stopped s
-handle state _          = state
+start :: State
+start = State 0 f where
+  f Start = running 0
+  f _     = start
 
--- fsm = start
---     start Start = run
---     run   Stop  = stop
---     stop  _     = stop
+running :: Int -> State
+running v = State v f where
+  f Task = running (succ v)
+  f Stop = stopped v
+  f _    = running v
+
+stopped :: Int -> State
+stopped v = State v (const $ stopped v)
 
 foldFSM :: IO ()
 foldFSM = do
-  -- TODO: use a state structre with functions
-  print $ foldl handle Init [Start, Task, Task, Stop, Task]
+  let s = foldl accept start [Start, Task, Task, Stop, Task]
+  print (state s)
