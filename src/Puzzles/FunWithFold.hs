@@ -2,16 +2,44 @@ module FunWithFold (
 
 ) where
 
-
+import Data.Char
 import Data.List
 import qualified Data.Map as M
 
 
 {-
--- Example of map and fold as support for an introduction to Haskell
+-- Example of map as support for an introduction to Haskell
 -}
 
 -- Simple examples as introduction
+
+mapIntro :: IO ()
+mapIntro = do
+
+  print $ map (+1) [1..10]
+  print $ map toUpper "teSt"    -- ^ "TEST"
+  print $ map digitToInt "9173" -- ^ [9, 1, 7, 3]
+
+  let commands = map mod [1..5] -- ^ A stream transformed to commands
+  print $ map ($5) commands     -- ^ [1, 2, 3, 4, 0]
+
+
+mapNested :: IO ()
+mapNested = do
+
+  print $ (fmap . fmap) (+1) [Just 1, Nothing, Just 2]
+  print $ (fmap . fmap) (+1) (Just [1, 2])
+
+  let l = [Just 2, Just 3, Just 4]
+  let m = M.fromList [(2, [2, 4, 6]), (3, [3, 6, 9])]
+  print $ (fmap . fmap) intToDigit l  -- ^ [Just '2', Just '3', Just '4']
+  print $ (fmap . fmap) intToDigit m  -- ^ fromList [(2, "246"), (3, "369")]
+
+
+
+{-
+-- Example of fold as support for an introduction to Haskell
+-}
 
 foldIntro :: IO ()
 foldIntro = do
@@ -27,20 +55,6 @@ foldIntro = do
 
   let groupWith proj = foldr (\a m -> M.insertWith (++) (proj a) [a] m) M.empty
   print $ fmap sum (groupWith (`mod` 5) [1..100])
-
-
--- | Think functionally
-
-roundRobin :: [[a]] -> [a]
-roundRobin = go []
-  where
-    go acc ([]: rest)      = go acc rest
-    go acc ((x:xs) : rest) = x : go (xs : acc) rest
-    go []  []              = []
-    go acc []              = go [] (reverse acc)
-
-roundRobin2 :: [[a]] -> [a]
-roundRobin2 = concat . transpose
 
 
 -- Think functions!
@@ -67,6 +81,21 @@ foldFunction = do
   print $ lexicoComp $ zip [1, 2, 3] [1, 3, 2]
   print $ lexicoComp $ zip [1, 3, 2] [1, 2, 3]
   print $ lexicoComp $ zip [1..] [2..]
+
+
+
+-- | Think functionally
+
+roundRobin :: [[a]] -> [a]
+roundRobin = go []
+  where
+    go acc ([]: rest)      = go acc rest
+    go acc ((x:xs) : rest) = x : go (xs : acc) rest
+    go []  []              = []
+    go acc []              = go [] (reverse acc)
+
+roundRobin2 :: [[a]] -> [a]
+roundRobin2 = concat . transpose
 
 
 -- Applied to domain
