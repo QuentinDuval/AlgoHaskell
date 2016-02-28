@@ -190,6 +190,62 @@ foldFunction = do
 
 
 --------------------------------------------------------------------------------
+-- Applied to domain
+--------------------------------------------------------------------------------
+
+data Transaction      = Transaction { amount :: Double }   deriving (Show)
+data TransactionEvent = Unwind      { ratio :: Double }    deriving (Show)
+
+data Balance      = Balance Double deriving (Show)
+data BalanceEvent = Reset Double | Increment Double
+
+foldDomain :: IO ()
+foldDomain = do
+
+  let apply (Transaction d) (Unwind r) = Transaction (d * r)
+  print $ foldl apply (Transaction 100) [Unwind 0.5, Unwind 0.5]
+
+  let acc (Balance t) (Reset r)     = Balance r
+      acc (Balance t) (Increment i) = Balance (t + i)
+  print $ foldl acc (Balance 100) [Increment 10, Reset 120, Increment 1]
+
+-- TODO: map to do split corporate actions - Reify the actions?
+-- TODO: fold to accumulate coupons?
+
+
+--------------------------------------------------------------------------------
+-- State machine
+--------------------------------------------------------------------------------
+
+data Transition = Start | Task | Stop
+  deriving (Show)
+
+data State = State {
+  state   :: Int,
+  accept  :: Transition -> State
+}
+
+start :: State
+start = State 0 f where
+  f Start = running 0
+  f _     = start
+
+running :: Int -> State
+running v = State v f where
+  f Task = running (succ v)
+  f Stop = stopped v
+  f _    = running v
+
+stopped :: Int -> State
+stopped v = State v (const $ stopped v)
+
+foldFSM :: IO ()
+foldFSM = do
+  let s = foldl accept start [Start, Task, Task, Stop, Task]
+  print (state s)
+
+
+--------------------------------------------------------------------------------
 -- Higher order function and explaining RAII equivalent
 --------------------------------------------------------------------------------
 
@@ -266,59 +322,3 @@ roundRobin = go []
 
 roundRobin2 :: [[a]] -> [a]
 roundRobin2 = concat . transpose
-
-
---------------------------------------------------------------------------------
--- Applied to domain
---------------------------------------------------------------------------------
-
-data Transaction      = Transaction { amount :: Double }   deriving (Show)
-data TransactionEvent = Unwind      { ratio :: Double }    deriving (Show)
-
-data Balance      = Balance Double deriving (Show)
-data BalanceEvent = Reset Double | Increment Double
-
-foldDomain :: IO ()
-foldDomain = do
-
-  let apply (Transaction d) (Unwind r) = Transaction (d * r)
-  print $ foldl apply (Transaction 100) [Unwind 0.5, Unwind 0.5]
-
-  let acc (Balance t) (Reset r)     = Balance r
-      acc (Balance t) (Increment i) = Balance (t + i)
-  print $ foldl acc (Balance 100) [Increment 10, Reset 120, Increment 1]
-
--- TODO: map to do split corporate actions - Reify the actions?
--- TODO: fold to accumulate coupons?
-
-
---------------------------------------------------------------------------------
--- State machine
---------------------------------------------------------------------------------
-
-data Transition = Start | Task | Stop
-  deriving (Show)
-
-data State = State {
-  state   :: Int,
-  accept  :: Transition -> State
-}
-
-start :: State
-start = State 0 f where
-  f Start = running 0
-  f _     = start
-
-running :: Int -> State
-running v = State v f where
-  f Task = running (succ v)
-  f Stop = stopped v
-  f _    = running v
-
-stopped :: Int -> State
-stopped v = State v (const $ stopped v)
-
-foldFSM :: IO ()
-foldFSM = do
-  let s = foldl accept start [Start, Task, Task, Stop, Task]
-  print (state s)
