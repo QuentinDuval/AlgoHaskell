@@ -6,6 +6,7 @@ module FunWithFold (
 
 ) where
 
+import Control.Arrow
 import Control.Concurrent
 import Control.Concurrent.Async
 import Control.Concurrent.STM
@@ -37,6 +38,58 @@ composition = do
   let (.&) = (.).(.)
       useless3 = length .& replicate
   print $ useless3 10 'c'
+
+
+
+--------------------------------------------------------------------------------
+-- Example of algebraic data types
+--------------------------------------------------------------------------------
+
+data JSON
+  = JInt Int
+  | JFloat Double
+  | JBool Bool
+  | JString String
+  | JList [JSON]
+  | JObject [(String, JSON)]
+  deriving (Show)
+
+surround :: Char -> Char -> String -> String
+surround l r s = [l] ++ s ++ [r]
+
+withQuote = surround '"' '"'
+withSquare = surround '[' ']'
+withBrace = surround '{' '}'
+
+formatJson :: JSON -> String
+formatJson (JInt i) = withQuote $ show i
+formatJson (JFloat d) = withQuote $ show d
+formatJson (JBool b) = withQuote $ show b
+formatJson (JString s) = withQuote s
+formatJson (JList js) =
+  fmap formatJson js
+    & intersperse ","
+    & concat
+    & withSquare
+    
+formatJson (JObject objs) =
+  let (keys, js) = unzip objs
+      subObjects = zipWith (\k v -> k ++ ":" ++ v)
+                      (fmap (formatJson . JString) keys)
+                      (fmap formatJson js)
+      subJsons = intersperse "," subObjects
+  in withBrace $ concat subJsons
+
+
+adtIntro :: IO ()
+adtIntro = do
+  let json = JObject [
+                ("name" , JString "Kurt"),
+                ("age"  , JInt 27),
+                ("dead?", JBool True),
+                ("songs", JList [ JString "Lithium", JString "Come as you are" ])
+              ]
+  putStrLn (formatJson json)
 
 
 --------------------------------------------------------------------------------
