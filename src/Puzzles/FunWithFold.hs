@@ -17,6 +17,28 @@ import qualified Data.Map as M
 import System.IO
 
 
+
+--------------------------------------------------------------------------------
+-- Example of composition as support for an introduction to Haskell
+--------------------------------------------------------------------------------
+
+composition :: IO ()
+composition = do
+
+  -- ^ Useless return 10 function
+  let useless1 = length . replicate 10
+  print $ useless1 'c'
+
+  -- ^ Useless return first element of pair function
+  let useless2 = length . uncurry replicate
+  print $ useless2 (10, 'c')
+
+  -- ^ Useless return first argument function
+  let (.&) = (.).(.)
+      useless3 = length .& replicate
+  print $ useless3 10 'c'
+
+
 --------------------------------------------------------------------------------
 -- Example of map as support for an introduction to Haskell
 --------------------------------------------------------------------------------
@@ -169,7 +191,7 @@ foldIntro = do
   print $ foldl (-) 20 [1..5] -- ^ Expected result: -5
   print $ foldr (-) 20 [1..5] -- ^ Might not be what you think: -17
 
-  let groupWith proj = foldr (\a m -> M.insertWith (++) (proj a) [a] m) M.empty
+  let groupWith proj = foldr (\a -> M.insertWith (++) (proj a) [a]) M.empty
   print $ fmap sum (groupWith (`mod` 5) [1..100])
 
 
