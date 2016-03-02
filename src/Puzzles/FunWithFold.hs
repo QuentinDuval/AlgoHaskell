@@ -170,9 +170,7 @@ cspLike = do
   atomically $ writeTVar (mail screen) "mail@mail.mail"
   atomically $ putTMVar okChan ()
   atomically $ putTMVar okChan ()
-
   wait r >> print "Close screen"
-
 
 
 --------------------------------------------------------------------------------
