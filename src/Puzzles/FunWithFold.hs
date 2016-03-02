@@ -42,7 +42,7 @@ composition = do
 
 
 --------------------------------------------------------------------------------
--- Example of algebraic data types
+-- Example of algebraic data types and functional thinking
 --------------------------------------------------------------------------------
 
 data JSON
@@ -67,13 +67,11 @@ formatJson (JList js)   = fmap formatJson js
                             & intersperse ","
                             & concat
                             & surround "[]"
-formatJson (JObject objs) =
-  let (keys, js) = unzip objs
-      subObjects = zipWith (\k v -> k ++ ":" ++ v)
-                      (fmap (formatJson . JString) keys)
-                      (fmap formatJson js)
-      subJsons = intersperse "," subObjects
-  in surround "{}" $ concat subJsons
+formatJson (JObject os) = fmap (withQuote *** formatJson) os
+                            & fmap (\(k,v) -> k ++ ":" ++ v)
+                            & intersperse ","
+                            & concat
+                            & surround "{}"
 
 
 adtIntro :: IO ()
