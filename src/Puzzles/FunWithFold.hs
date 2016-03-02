@@ -44,6 +44,14 @@ mapNested = do
   print $ (fmap . fmap) intToDigit m  -- ^ fromList [(2, "246"), (3, "369")]
 
 
+mapFrequencies :: IO ()
+mapFrequencies = do
+  let inputs = [1] ++ replicate 100 2 ++ concatMap (replicate 10 )[3, 4]
+      freqs = foldr (\k -> M.insertWith (+) k 1) M.empty inputs
+  -- ^ A pretty standard formula for IR systems
+  print $ fmap (\i -> 1 + log i) freqs
+
+
 --------------------------------------------------------------------------------
 -- Generalization of map
 --------------------------------------------------------------------------------
