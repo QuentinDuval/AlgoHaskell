@@ -54,31 +54,26 @@ data JSON
   | JObject [(String, JSON)]
   deriving (Show)
 
-surround :: Char -> Char -> String -> String
-surround l r s = [l] ++ s ++ [r]
-
-withQuote = surround '"' '"'
-withSquare = surround '[' ']'
-withBrace = surround '{' '}'
+surround :: String -> String -> String
+surround (l:r:_) s = [l] ++ s ++ [r]
+withQuote = surround "\"\""
 
 formatJson :: JSON -> String
-formatJson (JInt i) = withQuote $ show i
-formatJson (JFloat d) = withQuote $ show d
-formatJson (JBool b) = withQuote $ show b
-formatJson (JString s) = withQuote s
-formatJson (JList js) =
-  fmap formatJson js
-    & intersperse ","
-    & concat
-    & withSquare
-    
+formatJson (JInt i)     = withQuote (show i)
+formatJson (JFloat d)   = withQuote (show d)
+formatJson (JBool b)    = withQuote (show b)
+formatJson (JString s)  = withQuote s
+formatJson (JList js)   = fmap formatJson js
+                            & intersperse ","
+                            & concat
+                            & surround "[]"
 formatJson (JObject objs) =
   let (keys, js) = unzip objs
       subObjects = zipWith (\k v -> k ++ ":" ++ v)
                       (fmap (formatJson . JString) keys)
                       (fmap formatJson js)
       subJsons = intersperse "," subObjects
-  in withBrace $ concat subJsons
+  in surround "{}" $ concat subJsons
 
 
 adtIntro :: IO ()
