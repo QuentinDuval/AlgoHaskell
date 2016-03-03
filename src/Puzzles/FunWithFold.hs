@@ -427,15 +427,20 @@ parallelTest = do
 -- Amazing post:
 -- http://stackoverflow.com/questions/3322540/how-and-why-does-the-haskell-cont-monad-work
 --
+--
 -- The type of a continuation:
+--
 -- :t flip ($) True :: (Bool -> a) -> a
 -- :t (&) True      :: (Bool -> a) -> a
 -- :t (True &)      :: (Bool -> a) -> a
 --
 -- The definition of a continuation:
+--
 -- newtype Cont r a = Cont { runCont :: (a -> r) -> r }
 -- instance Monad (Cont r) where
+--   return :: a -> Cont r a -- Same as: a -> ((a -> b) -> b)
 --   return a = Cont ($ a)
+--   >>= :: Cont r a -> (a -> Cont r b) -> Cont r b
 --   m >>= k  = Cont $ \c -> runCont m $ \a -> runCont (k a) c
 
 contFun1 :: Cont String Int
