@@ -11,6 +11,7 @@ import Control.Concurrent
 import Control.Concurrent.Async
 import Control.Concurrent.STM
 import Control.Monad
+import Control.Monad.Cont
 import Control.Monad.Par
 import Control.Parallel.Strategies
 import Data.Char
@@ -417,3 +418,35 @@ parallelTest = do
 
   let f = runPar (fibPar 20)
   print f
+
+
+--------------------------------------------------------------------------------
+-- Example of continuations
+--------------------------------------------------------------------------------
+
+-- http://stackoverflow.com/questions/3322540/how-and-why-does-the-haskell-cont-monad-work
+-- :t flip ($) True :: (Bool -> a) -> a
+-- :t (&) True      :: (Bool -> a) -> a
+-- :t (True &)      :: (Bool -> a) -> a
+--
+-- newtype Cont r a = Cont { runCont :: (a -> r) -> r }
+--
+-- instance Monad (Cont r) where
+--   return a = Cont ($ a)
+--   m >>= k  = Cont $ \c -> runCont m $ \a -> runCont (k a) c
+
+contFun1 :: Cont String Int
+contFun1 = do
+  a <- return 1
+  -- b <- return 10
+  b <- cont $ \c -> c 10
+  -- b <- cont $ \c -> "toto"
+  return (a + b)
+
+contFun2 :: (Int -> String) -> String
+contFun2 = undefined
+
+contTest :: IO ()
+contTest = do
+  print $ runCont contFun1 show
+  print $ runCont contFun1 (const "Ignore at last step")
