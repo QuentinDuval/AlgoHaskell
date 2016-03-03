@@ -434,7 +434,12 @@ parallelTest = do
 -- :t (&) True      :: (Bool -> a) -> a
 -- :t (True &)      :: (Bool -> a) -> a
 --
--- The definition of a continuation:
+-- The definition of the continuation monad:
+-- * Given a partial computation from 'a' to 'r'
+-- * A transformation from 'a' to a partial computation from 'b' to 'r'
+-- * Provides a partial computation from 'b' to 'r'
+-- * Basically complete part of the missing computation
+-- * So it looks like a transformation of the kind (a -> r) to (b -> r)
 --
 -- newtype Cont r a = Cont { runCont :: (a -> r) -> r }
 -- instance Monad (Cont r) where
