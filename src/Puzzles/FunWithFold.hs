@@ -11,12 +11,13 @@ import Control.Concurrent
 import Control.Concurrent.Async
 import Control.Concurrent.STM
 import Control.Monad
+import Control.Monad.Par
+import Control.Parallel.Strategies
 import Data.Char
 import Data.Function((&))
 import Data.List
 import qualified Data.Map as M
 import System.IO
-
 
 
 --------------------------------------------------------------------------------
@@ -365,7 +366,7 @@ setQuantity :: Trade a -> Double -> Trade Edited
 setQuantity t q = t { quantity = q }
 
 validateTrade :: Trade a -> Trade Validated
-validateTrade t = t { quantity = quantity t } -- ^ Hack... how to do it?
+validateTrade t = t { quantity = quantity t }
 
 saveTrade :: Trade Validated -> IO ()
 saveTrade t = putStrLn ("[SAVING] " ++ show t)
@@ -376,10 +377,8 @@ testPhantomType = do
       t2 = validateTrade t1
       t3 = setQuantity t2 12
       t4 = validateTrade t3
-  -- saveTrade t1  -- ^ Does not compile
-  saveTrade t2
-  -- saveTrade t3  -- ^ Does not compile
-  saveTrade t4
+  saveTrade t2 -- ^ Saving t1 would not compile
+  saveTrade t4 -- ^ Saving t3 would not compile
 
 
 --------------------------------------------------------------------------------
@@ -396,3 +395,25 @@ roundRobin = go []
 
 roundRobin2 :: [[a]] -> [a]
 roundRobin2 = concat . transpose
+
+
+--------------------------------------------------------------------------------
+-- Example of parallel computations
+--------------------------------------------------------------------------------
+
+fibPar :: Int -> Par Integer
+fibPar 0 = pure 0
+fibPar 1 = pure 1
+fibPar n = do
+  a <- fibPar (n-1)
+  b <- fibPar (n-2)
+  return (a + b)
+
+parallelTest :: IO ()
+parallelTest = do
+
+  let r = sum (map (+1) [1..1000] `using` parListChunk 100 rpar)
+  print r
+
+  let f = runPar (fibPar 20)
+  print f
