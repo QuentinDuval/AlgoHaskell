@@ -450,7 +450,10 @@ parallelTest = do
 
 contFun1 :: Cont String Int
 contFun1 = do
+
+  -- Uncomment the second line to ignore the outer computation
   a <- return 1
+  -- a <- cont (const "toto")
 
   -- ^ All these formulations are equivalent:
   -- b <- return 10
@@ -458,6 +461,7 @@ contFun1 = do
   -- b <- cont (10 &)
   b <- cont ($ 10)
 
+  -- Uncomment the following line to ignore the outer computation
   -- b <- cont $ \c -> "toto"
   return (a + b)
 
