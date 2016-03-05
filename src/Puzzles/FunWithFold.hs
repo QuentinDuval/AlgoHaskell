@@ -452,18 +452,22 @@ contFun1 :: Cont String Int
 contFun1 = do
 
   -- Uncomment the second line to ignore the outer computation
-  a <- return 1
+  a <- return 1 -- Type is Cont String Int
   -- a <- cont (const "toto")
 
   -- ^ All these formulations are equivalent:
   -- b <- return 10
-  -- b <- cont $ \c -> c 10
+  b <- cont $ \c -> c 10 -- ^ Type of c is (Int -> String)
   -- b <- cont (10 &)
-  b <- cont ($ 10)
+  -- b <- cont ($ 10)
 
-  -- Uncomment the following line to ignore the outer computation
-  -- b <- cont $ \c -> "toto"
-  return (a + b)
+  -- | Type of exit is (Int -> Cont String Int)
+  -- Which is like (Int -> ((Int -> String) -> String))
+  -- And callCC makes: ((Int -> String) -> String)) -> Int
+  -- c <- callCC (\exit -> exit 10)
+  c <- callCC (\exit -> pure 10)
+
+  return (a + b + c)
 
 contFun2 :: (Int -> String) -> String
 contFun2 = undefined
