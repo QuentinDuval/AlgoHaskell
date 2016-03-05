@@ -442,9 +442,12 @@ parallelTest = do
 -- * So it looks like a transformation of the kind (a -> r) to (b -> r)
 --
 -- newtype Cont r a = Cont { runCont :: (a -> r) -> r }
+--
 -- instance Monad (Cont r) where
+--
 --   return :: a -> Cont r a -- Same as: a -> ((a -> b) -> b)
 --   return a = Cont ($ a)
+--
 --   >>= :: Cont r a -> (a -> Cont r b) -> Cont r b
 --   m >>= k  = Cont $ \c -> runCont m $ \a -> runCont (k a) c
 
