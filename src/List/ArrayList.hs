@@ -7,6 +7,7 @@ module List.ArrayList (
 ) where
 
 import Data.Vector as V
+-- import Data.Vector.Persistent
 
 
 -- | Tree like view of a array list

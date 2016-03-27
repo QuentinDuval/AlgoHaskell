@@ -52,6 +52,7 @@ library
         async >= 2.0.2,
         stm >= 2.4.4,
         parallel >= 3.2.0,
+        persistent-vector -any,
         monad-par >= 0.3.4.7,
         unordered-containers -any,
         containers >=0.5.6.2 && <0.6,

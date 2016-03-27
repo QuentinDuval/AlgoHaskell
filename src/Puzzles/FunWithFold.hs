@@ -2,7 +2,7 @@
 {-# LANGUAGE KindSignatures #-}
 {-# LANGUAGE RecordWildCards #-}
 
-module FunWithFold (
+module Puzzles.FunWithFold (
 
 ) where
 
