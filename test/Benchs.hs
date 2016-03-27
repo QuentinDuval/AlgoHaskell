@@ -2,7 +2,7 @@ module Benchs (
     runAllBenchs
 ) where
 
-
+import Bench.ArrayListBench
 import Bench.Queue
 import Bench.Puzzles.FibBench
 import Bench.Puzzles.MemoizationBench
@@ -28,4 +28,5 @@ runBench :: String -> IO ()
 runBench "Queue"      = runQueueBench
 runBench "Fibonacci"  = runFibBench
 runBench "Memoize"    = runMemoBench
+runBench "ArrayList"  = runArrayListBench
 runBench _            = pure ()
