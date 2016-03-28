@@ -428,6 +428,17 @@ roundRobin2 = concat . transpose
 
 
 --------------------------------------------------------------------------------
+-- A stupid quote to finish
+--------------------------------------------------------------------------------
+
+stupid :: IO ()
+stupid = do
+  print "If you've enjoyed the show just half as much as we did..."
+  print "...then we've enjoyed it twice as much as you."
+  print "(Monty Python)"
+
+
+--------------------------------------------------------------------------------
 -- Example of parallel computations
 --------------------------------------------------------------------------------
 
