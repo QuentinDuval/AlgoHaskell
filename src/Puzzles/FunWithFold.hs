@@ -428,14 +428,21 @@ roundRobin2 = concat . transpose
 
 
 --------------------------------------------------------------------------------
--- A stupid quote to finish
+-- A stupid quote of Monty Python to finish
 --------------------------------------------------------------------------------
 
-stupid :: IO ()
-stupid = do
-  print "If you've enjoyed the show just half as much as we did..."
-  print "...then we've enjoyed it twice as much as you."
-  print "(Monty Python)"
+stupid :: String
+stupid =
+  unwords $ map snd $
+    sortOn fst [
+      (4, "as we did..."),
+      (1, "If you've"),
+      (6, "twice as much"),
+      (5, "then we've enjoyed it"),
+      (2, "enjoyed the show"),
+      (7, "as you."),
+      (3, "just half as much")
+    ]
 
 
 --------------------------------------------------------------------------------
