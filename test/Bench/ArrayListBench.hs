@@ -7,6 +7,11 @@ import Criterion.Main
 
 import Control.Monad.ST
 import Data.List
+
+-- import qualified Data.HashMap as HM
+import qualified Data.IntMap as IM
+import qualified Data.Map as M
+
 import qualified Data.Vector.Unboxed as V
 import qualified Data.Vector.Unboxed.Mutable as MV
 import qualified Data.Vector.Algorithms.Intro as V
@@ -16,10 +21,22 @@ import qualified Data.Vector.Persistent as PV
 runArrayListBench :: IO ()
 runArrayListBench = defaultMain [
     bgroup "ArrayList" [
+      runMapBench 1000000,
       runSumBench 1000000,
       runSortBench 1000000
     ]
   ]
+
+--------------------------------------------------------------------------------
+
+runMapBench :: Int -> Benchmark
+runMapBench n =
+  let l = [(x,x) | x <-[1..n]]
+  in bgroup ("MapBench" ++ show n) [
+      bench "DataMap"     $ nf M.fromList l,
+      -- bench "DataHashMap" $ nf M.fromList l,
+      bench "DataIntMap"  $ nf IM.fromList l
+     ]
 
 --------------------------------------------------------------------------------
 
