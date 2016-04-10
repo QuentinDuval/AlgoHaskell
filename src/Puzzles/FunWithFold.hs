@@ -105,7 +105,9 @@ mutExample = do
   print (constField d3)
 
   -- Eq if bad in the impure world (equality of pointers)
-  print (d1 == d2)
+  print (cstAlgo d1 == d3)
+  print (cstAlgo d2 == d3)
+  print (d1 == d3)
 
   -- IO Ref modification is shared
   print =<< mutAlgo d1
