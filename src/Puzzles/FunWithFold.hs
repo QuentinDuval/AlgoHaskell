@@ -18,6 +18,7 @@ import Data.Char
 import Data.Function((&))
 import Data.List
 import qualified Data.Map as M
+import Data.IORef
 import System.IO
 
 
@@ -40,7 +41,6 @@ composition = do
   let (.&) = (.).(.)
       useless3 = length .& replicate
   print $ useless3 10 'c'
-
 
 
 --------------------------------------------------------------------------------
@@ -78,47 +78,39 @@ predExample = do
 
 
 --------------------------------------------------------------------------------
--- Example of algebraic data types and functional thinking
+-- Example of side effects as introduction to Haskell
 --------------------------------------------------------------------------------
 
-data JSON
-  = JInt Int
-  | JFloat Double
-  | JBool Bool
-  | JString String
-  | JList [JSON]
-  | JObject [(String, JSON)]
-  deriving (Show)
+data MutData = MutData {
+  constField :: Int,        -- Immutable data
+  mutableField :: IORef Int -- Might represent "static data"
+} deriving (Eq)             -- Beware: Eq is based on the IORef!
 
-surround :: String -> String -> String
-surround (l:r:_) s = [l] ++ s ++ [r]
-withQuote = surround "\"\""
+cstAlgo :: MutData -> MutData
+cstAlgo (MutData cf mf) = MutData (2 * cf) mf
 
-formatJson :: JSON -> String
-formatJson (JInt i)     = withQuote (show i)
-formatJson (JFloat d)   = withQuote (show d)
-formatJson (JBool b)    = withQuote (show b)
-formatJson (JString s)  = withQuote s
-formatJson (JList js)   = fmap formatJson js
-                            & intersperse ","
-                            & concat
-                            & surround "[]"
-formatJson (JObject os) = fmap (withQuote *** formatJson) os
-                            & fmap (\(k,v) -> k ++ ":" ++ v)
-                            & intersperse ","
-                            & concat
-                            & surround "{}"
+mutAlgo :: MutData -> IO Int
+mutAlgo (MutData cf mf) = (cf +) <$> readIORef mf
 
+mutModif :: MutData -> IO ()
+mutModif (MutData _ mf) = modifyIORef mf (+1)
 
-adtIntro :: IO ()
-adtIntro = do
-  let json = JObject [
-                ("name" , JString "Kurt"),
-                ("age"  , JInt 27),
-                ("dead?", JBool True),
-                ("songs", JList [ JString "Lithium", JString "Come as you are" ])
-              ]
-  putStrLn (formatJson json)
+mutExample :: IO ()
+mutExample = do
+  d1 <- MutData 1 <$> newIORef 1
+  d2 <- MutData 1 <$> newIORef 1
+
+  -- All is good in the pure world
+  let d3 = cstAlgo d1
+  print (constField d3)
+
+  -- Eq if bad in the impure world (equality of pointers)
+  print (d1 == d2)
+
+  -- IO Ref modification is shared
+  print =<< mutAlgo d1
+  mutModif d3
+  print =<< mutAlgo d1
 
 
 --------------------------------------------------------------------------------
