@@ -51,6 +51,7 @@ data Pred a
   = Pred (a -> Bool)
   | Neg (Pred a)
   | Conj [Pred a]
+  | Disj [Pred a]
 
 neg :: Pred a -> Pred a
 neg (Neg p) = p
@@ -59,16 +60,20 @@ neg p       = Neg p
 conj :: [Pred a] -> Pred a
 conj = Conj
 
+disj :: [Pred a] -> Pred a
+disj = Disj
+
 eval :: Pred a -> a -> Bool
 eval (Pred p) v   = p v
 eval (Neg p) v    = not (eval p v)
 eval (Conj ps) v  = all (`eval` v) ps
+eval (Disj ps) v  = any (`eval` v) ps
 
 predExample :: IO ()
 predExample = do
   let p1 = neg (neg (Pred null))
       p2 = neg (Pred null)
-      ps = conj [p1, p2]
+      ps = conj [disj [p1, p2], p2]
   print (eval ps "toto")
 
 
