@@ -76,7 +76,7 @@ executable exe-AlgoHaskell
         memoize -any,
         persistent-vector -any,
         vector-algorithms >= 0.7 && < 0.8,
-        unordered-containers -any,
+        unordered-containers >=0.2.5.1 && <0.3,
         containers >=0.5.6.2 && <0.6,
         mtl >=2.2.1 && <2.3,
         unordered-containers >=0.2.5.1 && <0.3,

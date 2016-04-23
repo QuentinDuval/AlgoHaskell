@@ -8,7 +8,7 @@ import Criterion.Main
 import Control.Monad.ST
 import Data.List
 
--- import qualified Data.HashMap as HM
+import qualified Data.HashMap.Strict as HM
 import qualified Data.IntMap as IM
 import qualified Data.Map as M
 
@@ -34,7 +34,7 @@ runMapBench n =
   let l = [(x,x) | x <-[1..n]]
   in bgroup ("MapBench" ++ show n) [
       bench "DataMap"     $ nf M.fromList l,
-      -- bench "DataHashMap" $ nf M.fromList l,
+      bench "DataHashMap" $ nf HM.fromList l,
       bench "DataIntMap"  $ nf IM.fromList l
      ]
 
