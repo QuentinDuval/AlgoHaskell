@@ -8,7 +8,7 @@ import Criterion.Main
 import Control.Monad.ST
 import Data.List
 
-import qualified Data.HashMap.Strict as HM
+import qualified Data.HashMap.Lazy as HM
 import qualified Data.IntMap as IM
 import qualified Data.Map as M
 
