@@ -31,7 +31,7 @@ runArrayListBench = defaultMain [
 
 runMapBench :: Int -> Benchmark
 runMapBench n =
-  let l = [(x,x) | x <-[1..n]]
+  let l = [(x,x) | x <-[n, n-1 .. 1]]
   in bgroup ("MapBench" ++ show n) [
       bench "DataMap"     $ nf M.fromList l,
       bench "DataHashMap" $ nf HM.fromList l,
